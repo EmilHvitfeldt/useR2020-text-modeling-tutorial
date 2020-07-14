@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Predictive modeling with text using tidy data principles</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Julia Silge &amp; Emil Hvitfeldt" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# Predictive modeling with text using tidy data principles
+## useR2020
+### Julia Silge &amp; Emil Hvitfeldt
+### 2019-7-24
+
+---
+
+
+
+
+
+
+# Packages
+
+
+```r
+library(tidymodels)
+library(textrecipes)
+```
+
+---
+
+# data
+
+
+```r
+talks &lt;- readr::read_csv("data/talks.csv")
+talks
+```
+
+```
+## # A tibble: 430 x 3
+##    description                                                  language  year
+##    &lt;chr&gt;                                                        &lt;chr&gt;    &lt;dbl&gt;
+##  1 "Have you ever wanted to write a GUI application in Python … python    2019
+##  2 "We rarely think about the dot “.” between our objects and … python    2019
+##  3 "Account security means making sure your users are only one… python    2019
+##  4 "Do you feel overwhelmed by the prospect of having to find … python    2019
+##  5 "Everyone’s talking about it. Everyone’s using it. But most… python    2019
+##  6 "We will look into a day in the life of a Software Engineer… python    2019
+##  7 "Medieval European Nobility was obsessed with Lineage. They… python    2019
+##  8 "In July of 2018, Guido van Rossum stepped down as “Benevol… python    2019
+##  9 "If you maintain a library, how can you innovate without br… python    2019
+## 10 "Embroidery is a technology that dates back centuries and i… python    2019
+## # … with 420 more rows
+```
+
+---
+
+# Splitting
+
+
+```r
+split &lt;- initial_split(talks, strata = language)
+
+train_data &lt;- training(split)
+test_data &lt;- testing(split)
+```
+
+---
+
+# Preprocessing specification
+
+
+```r
+rec_spec &lt;- recipe(language ~ ., data = train_data) %&gt;%
+  step_tokenize(description) %&gt;%
+  step_tokenfilter(description) %&gt;%
+  step_stopwords(description) %&gt;%
+  step_tfidf(description) %&gt;%
+  step_scale(year)
+```
+
+---
+
+# Model specification
+
+
+```r
+lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
+  set_engine("glmnet")
+```
+
+---
+
+# Creating a workflow
+
+
+```r
+wf_spec &lt;- workflow() %&gt;%
+  add_recipe(rec_spec) %&gt;%
+  add_model(lasso_spec)
+```
+
+---
+
+# Setting up a tuning grid
+
+
+```r
+param_grid &lt;- grid_regular(penalty(), levels = 50)
+```
+
+
+```r
+data_boot &lt;- bootstraps(train_data, times = 10)
+```
+
+
+```r
+set.seed(42)
+lasso_grid &lt;- tune_grid(
+  wf_spec,
+  resamples = data_boot,
+  grid = param_grid
+) 
+```
+
+---
+
+# Looking at the hyperparameters
+
+
+```r
+autoplot(lasso_grid)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Looking at the hyperparameters
+
+
+```r
+lasso_grid %&gt;%
+  show_best("roc_auc")
+```
+
+```
+## # A tibble: 5 x 7
+##   penalty .metric .estimator  mean     n  std_err .config
+##     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;chr&gt;  
+## 1 0.0233  roc_auc binary     0.997    10 0.000729 Model42
+## 2 0.0373  roc_auc binary     0.997    10 0.000797 Model43
+## 3 0.0146  roc_auc binary     0.997    10 0.000805 Model41
+## 4 0.00569 roc_auc binary     0.997    10 0.000772 Model39
+## 5 0.00910 roc_auc binary     0.997    10 0.000801 Model40
+```
+
+---
+
+# update workflow
+
+
+```r
+wf_spec_final &lt;- wf_spec %&gt;%
+  finalize_workflow(parameters = select_best(lasso_grid, "roc_auc"))
+```
+
+---
+
+# Variable importance - how is our model thinking
+
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# looking at one description
+
+&lt;span, style = 'color:green;'&gt;Python&lt;/span&gt; &lt;span, style = 'color:black;'&gt;And&lt;/span&gt; &lt;span, style = 'color:blue;'&gt;R&lt;/span&gt;
+
+<div>
+<span>everyone’s</span>
+<span>talking</span>
+<span>about</span>
+<span>it</span>
+<span>everyone’s</span>
+<span style="color:green;">using</span>
+<span>it</span>
+<span>but</span>
+<span>most</span>
+<span>likely</span>
+<span>they’re</span>
+<span>doing</span>
+<span>it</span>
+<span>wrong</span>
+<span>just</span>
+<span style="color:green;">like</span>
+<span>we</span>
+<span>did</span>
+<span>by</span>
+<span>building</span>
+<span>a</span>
+<span>simplified</span>
+<span>chaos</span>
+<span>monkey</span>
+<span>service</span>
+<span>we</span>
+<span>will</span>
+<span>walk</span>
+<span>through</span>
+<span>how</span>
+<span>to</span>
+<span>create</span>
+<span>a</span>
+<span>good</span>
+<span>foundation</span>
+<span>for</span>
+<span>an</span>
+<span>asyncio</span>
+<span style="color:blue;">based</span>
+<span>service</span>
+<span>including</span>
+<span>graceful</span>
+<span>shutdowns</span>
+<span>proper</span>
+<span>exception</span>
+<span>handling</span>
+<span>and</span>
+<span>testing</span>
+<span>asynchronous</span>
+<span style="color:green;">code</span>
+<span>we’ll</span>
+<span>get</span>
+<span>into</span>
+<span>the</span>
+<span>hairier</span>
+<span>topics</span>
+<span>as</span>
+<span style="color:green;">well</span>
+<span>covering</span>
+<span>topics</span>
+<span style="color:green;">like</span>
+<span>working</span>
+<span>with</span>
+<span>synchronous</span>
+<span style="color:green;">code</span>
+<span>debugging</span>
+<span>and</span>
+<span>profiling</span>
+<span>and</span>
+<span>working</span>
+<span>with</span>
+<span>threaded</span>
+<span style="color:green;">code</span>
+<span>we’ll</span>
+<span style="color:green;">learn</span>
+<span>how</span>
+<span>to</span>
+<span>approach</span>
+<span>asynchronous</span>
+<span>and</span>
+<span>concurrent</span>
+<span>programming</span>
+<span>with</span>
+<span>python’s</span>
+<span>asyncio</span>
+<span>library</span>
+<span>take</span>
+<span>away</span>
+<span>some</span>
+<span>best</span>
+<span>practices</span>
+<span>and</span>
+<span style="color:green;">learn</span>
+<span>what</span>
+<span>pitfalls</span>
+<span>to</span>
+<span>avoid</span>
+</div>
+
+---
+
+# Final fit
+
+
+```r
+final_fit &lt;- last_fit(wf_spec_final, split)
+```
+
+
+```r
+final_fit %&gt;%
+  collect_predictions() %&gt;%
+  conf_mat(language, .pred_class)
+```
+
+```
+##           Truth
+## Prediction python  r
+##     python     47  2
+##     r           0 58
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,244 @@
+---
+title: "Predictive modeling with text using tidy data principles"
+subtitle: "useR2020"
+author: "Julia Silge & Emil Hvitfeldt"
+date: "2019-7-24"
+output:
+  xaringan::moon_reader:
+    css: ["theme.css"]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: [center, middle]
+---
+
+```{r include=FALSE}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines) == 1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+opts_chunk$set(
+  echo = TRUE,
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px")
+```
+
+```{r, echo = FALSE}
+library(sass)
+sass(sass_file("theme.sass"), output = "theme.css")
+set.seed(1234)
+```
+
+# Packages
+
+```{r}
+library(tidymodels)
+library(textrecipes)
+```
+
+---
+
+# data
+
+```{r, message=FALSE}
+talks <- readr::read_csv("data/talks.csv")
+talks
+```
+
+---
+
+# Splitting
+
+```{r}
+split <- initial_split(talks, strata = language)
+
+train_data <- training(split)
+test_data <- testing(split)
+```
+
+---
+
+# Preprocessing specification
+
+```{r}
+rec_spec <- recipe(language ~ ., data = train_data) %>%
+  step_tokenize(description) %>%
+  step_tokenfilter(description) %>%
+  step_stopwords(description) %>%
+  step_tfidf(description) %>%
+  step_scale(year)
+```
+
+---
+
+# Model specification
+
+```{r}
+lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
+  set_engine("glmnet")
+```
+
+---
+
+# Creating a workflow
+
+```{r}
+wf_spec <- workflow() %>%
+  add_recipe(rec_spec) %>%
+  add_model(lasso_spec)
+```
+
+---
+
+# Setting up a tuning grid
+
+```{r}
+param_grid <- grid_regular(penalty(), levels = 50)
+```
+
+```{r}
+data_boot <- bootstraps(train_data, times = 10)
+```
+
+```{r}
+set.seed(42)
+lasso_grid <- tune_grid(
+  wf_spec,
+  resamples = data_boot,
+  grid = param_grid
+) 
+```
+
+---
+
+# Looking at the hyperparameters
+
+```{r}
+autoplot(lasso_grid)
+```
+
+---
+
+# Looking at the hyperparameters
+
+```{r}
+lasso_grid %>%
+  show_best("roc_auc")
+```
+
+---
+
+# update workflow
+
+```{r}
+wf_spec_final <- wf_spec %>%
+  finalize_workflow(parameters = select_best(lasso_grid, "roc_auc"))
+```
+
+---
+
+# Variable importance - how is our model thinking
+
+```{r, echo=FALSE}
+wi_data <- wf_spec_final %>%
+  fit(train_data) %>%
+  pull_workflow_fit() %>%
+  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %>%
+  mutate(Variable = stringr::str_remove_all(Variable, "tfidf_description_"))
+
+wi_data %>%
+  mutate(
+    Importance = abs(Importance)
+    ) %>%
+  filter(Importance != 0) %>%
+  group_by(Sign) %>%
+  top_n(20, Importance) %>%
+  ungroup() %>%
+  ggplot(aes(
+    x = Importance,
+    y = forcats::fct_reorder(Variable, Importance),
+    fill = Sign
+  )) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(expand = c(0, 0)) +
+  facet_wrap(~Sign, scales = "free") +
+  labs(
+    y = NULL,
+    title = "Variable importance for predicting year of Supreme Court opinions",
+    subtitle = "These features are the most importance in predicting the year of an opinion"
+  )
+```
+
+---
+
+# looking at one description
+
+<span, style = 'color:green;'>Python</span> <span, style = 'color:black;'>And</span> <span, style = 'color:blue;'>R</span>
+
+```{r, echo=FALSE}
+highlighter <- function(x, sign) {
+  if(is.na(sign)) {
+    htmltools::span(x)
+  } else if (sign == "NEG") {
+    htmltools::span(x, style = 'color:green;')
+  } else if (sign == "POS") {
+    htmltools::span(x, style = 'color:blue;')
+  }
+}
+
+train_data %>%
+  slice(3) %>%
+  tidytext::unnest_tokens(words, description) %>%
+  left_join(wi_data, by = c("words" = "Variable")) %>%
+  mutate(words = map2(words, Sign, highlighter)) %>%
+  pull(words) %>%
+  htmltools::div()
+```
+
+---
+
+# Final fit
+
+```{r}
+final_fit <- last_fit(wf_spec_final, split)
+```
+
+```{r}
+final_fit %>%
+  collect_predictions() %>%
+  conf_mat(language, .pred_class)
+```
