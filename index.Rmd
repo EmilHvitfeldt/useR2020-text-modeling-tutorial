@@ -65,7 +65,6 @@ sass(sass_file("theme.sass"), output = "theme.css")
 set.seed(1234)
 ```
 
----
 class: center, middle
 
 # Hello
