@@ -8,6 +8,7 @@ output:
     css: ["theme.css"]
     lib_dir: libs
     nature:
+      highlightLanguage: "r"
       beforeInit: "macros.js"
       ratio: "16:9"
       highlightStyle: github
@@ -54,7 +55,8 @@ opts_chunk$set(
   fig.width = 7, 
   fig.align = 'center',
   fig.asp = 0.618, # 1 / phi
-  out.width = "700px")
+  out.width = "700px",
+  fig.retina = 3)
 ```
 
 ```{r, echo = FALSE}
@@ -62,6 +64,23 @@ library(sass)
 sass(sass_file("theme.sass"), output = "theme.css")
 set.seed(1234)
 ```
+
+---
+class: center, middle
+
+# Hello
+
+<img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/>
+<img style="border-radius: 50%;" src="https://github.com/juliasilge.png" width="150px"/>
+
+[`r icon::fa("github")` @EmilHvitfeldt](https://github.com/EmilHvitfeldt)  
+[`r icon::fa("twitter")` @Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)  
+[`r icon::fa("link")` hvitfeldt.me](https://www.hvitfeldt.me/)  
+[`r icon::fa("github")` @juliasilge](https://github.com/juliasilge)  
+[`r icon::fa("twitter")` @juliasilge](https://twitter.com/juliasilge)  
+[`r icon::fa("link")` juliasilge.com](https://juliasilge.com)
+
+---
 
 # Packages
 
