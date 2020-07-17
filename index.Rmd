@@ -72,12 +72,51 @@ class: center, middle
 <img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/>
 <img style="border-radius: 50%;" src="https://github.com/juliasilge.png" width="150px"/>
 
+.pull-left[
 [`r icon::fa("github")` @EmilHvitfeldt](https://github.com/EmilHvitfeldt)  
 [`r icon::fa("twitter")` @Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)  
-[`r icon::fa("link")` hvitfeldt.me](https://www.hvitfeldt.me/)  
+[`r icon::fa("link")` hvitfeldt.me](https://www.hvitfeldt.me/)
+]
+
+.pull-right[
 [`r icon::fa("github")` @juliasilge](https://github.com/juliasilge)  
 [`r icon::fa("twitter")` @juliasilge](https://twitter.com/juliasilge)  
 [`r icon::fa("link")` juliasilge.com](https://juliasilge.com)
+]
+---
+
+# Plan for today
+
+--
+
+- We will walk through our case study using slides and live coding
+
+--
+
+- After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself `r emo::ji("muscle")`
+
+---
+
+# Text as data
+
+Let's look at complaints submitted to the [United States Consumer Financial Protection Bureau (CFPB)](https://www.consumerfinance.gov/data-research/consumer-complaints/).
+
+```{r R.options = list(width = 80)}
+library(tidyverse)
+
+complaints <- read_csv("data/complaints.csv.gz") %>% sample_frac(0.1)
+names(complaints)
+```
+
+---
+
+# Text as data
+
+```{r}
+complaints %>%
+  sample_n(10) %>%
+  pull(consumer_complaint_narrative)
+```
 
 ---
 
