@@ -5,7 +5,7 @@ author: "Julia Silge & Emil Hvitfeldt"
 date: "2019-7-24"
 output:
   xaringan::moon_reader:
-    css: ["theme.css"]
+    css: ["default", "theme.css"]
     lib_dir: libs
     nature:
       highlightLanguage: "r"
@@ -67,18 +67,17 @@ set.seed(1234)
 
 class: center, middle
 
-# Hello
-
-<img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/>
-<img style="border-radius: 50%;" src="https://github.com/juliasilge.png" width="150px"/>
+# Hello!
 
 .pull-left[
+<img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/>  
 [`r icon::fa("github")` @EmilHvitfeldt](https://github.com/EmilHvitfeldt)  
 [`r icon::fa("twitter")` @Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)  
 [`r icon::fa("link")` hvitfeldt.me](https://www.hvitfeldt.me/)
 ]
 
 .pull-right[
+<img style="border-radius: 50%;" src="https://github.com/juliasilge.png" width="150px"/>  
 [`r icon::fa("github")` @juliasilge](https://github.com/juliasilge)  
 [`r icon::fa("twitter")` @juliasilge](https://twitter.com/juliasilge)  
 [`r icon::fa("link")` juliasilge.com](https://juliasilge.com)
@@ -89,11 +88,11 @@ class: center, middle
 
 --
 
-- We will walk through our case study using slides and live coding
+* We will walk through our case study using slides and live coding
 
 --
 
-- After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself `r emo::ji("muscle")`
+* After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself `r emo::ji("muscle")`
 
 ---
 
@@ -101,7 +100,7 @@ class: center, middle
 
 Let's look at complaints submitted to the [United States Consumer Financial Protection Bureau (CFPB)](https://www.consumerfinance.gov/data-research/consumer-complaints/).
 
-```{r R.options = list(width = 80)}
+```{r R.options = list(width = 80), message=FALSE}
 library(tidyverse)
 
 complaints <- read_csv("data/complaints.csv.gz") %>% sample_frac(0.1)
