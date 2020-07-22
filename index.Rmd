@@ -123,6 +123,30 @@ class: center, middle
 
 Let's look at complaints submitted to the [United States Consumer Financial Protection Bureau (CFPB)](https://www.consumerfinance.gov/data-research/consumer-complaints/).
 
+--
+
+
+- An individual experiences a problem `r emo::ji("weary")` with a consumer financial product or service, like a bank, loan, or credit card `r emo::ji("moneybag")`
+
+
+--
+
+
+- They submit a **complaint** to the CFPB explaining what happened `r emo::ji("rage")`
+
+
+--
+
+
+- This complaint is sent to the company, which can respond or dispute
+
+
+---
+
+# Text as data
+
+Let's look at complaints submitted to the [United States Consumer Financial Protection Bureau (CFPB)](https://www.consumerfinance.gov/data-research/consumer-complaints/).
+
 ```{r R.options = list(width = 80), message=FALSE}
 library(tidyverse)
 
@@ -149,8 +173,8 @@ library(tidymodels)
 library(textrecipes)
 ```
 
-- [tidymodels](https://www.tidymodels.org/) is a collection of packages for modeling and machine learning using tidyverse principles.
-- [textrecipes](https://textrecipes.tidymodels.org/) extends the recipes package to be able to handle text preprocessing.
+- [tidymodels](https://www.tidymodels.org/) is a collection of packages for modeling and machine learning using tidyverse principles
+- [textrecipes](https://textrecipes.tidymodels.org/) extends the recipes package to handle text preprocessing
 
 ---
 
@@ -160,13 +184,23 @@ library(textrecipes)
 
 ---
 
+# Modeling workflow
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_url("https://smltar.com/")
+```
+
+---
+
 # Class imbalance
 
 ```{r, echo=FALSE}
 complaints %>%
-  mutate(product = fct_rev(fct_infreq(factor(product)))) %>%
+  mutate(product = str_wrap(product, 50),
+         product = fct_rev(fct_infreq(factor(product)))) %>%
   ggplot(aes(y = product)) +
-  geom_bar()
+  geom_bar() +
+  labs(x = NULL, y = NULL)
 ```
 
 ---
