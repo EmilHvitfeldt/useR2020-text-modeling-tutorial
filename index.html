@@ -132,7 +132,7 @@ library(textrecipes)
 
 # Class imbalance
 
-&lt;img src="index_files/figure-html/unnamed-chunk-83-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -616,7 +616,7 @@ lasso_grid &lt;- tune_grid(
 autoplot(lasso_grid)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-92-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -673,6 +673,376 @@ final_fit %&gt;%
 ##     Credit     57    12
 ##     Other      14    63
 ```
+
+---
+
+# Variable importance - how is our model thinking
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+
+## Credit Complaint #1
+
+&lt;span, style = 'color:green;'&gt;Credit&lt;/span&gt;
+&lt;span, style = 'color:black;'&gt;And&lt;/span&gt;
+&lt;span, style = 'color:blue;'&gt;Other&lt;/span&gt;
+
+<div>
+<span>i</span>
+<span>have</span>
+<span>contacted</span>
+<span style="color:green;">equifax</span>
+<span>on</span>
+<span>at</span>
+<span>least</span>
+<span>5</span>
+<span>occasions</span>
+<span>to</span>
+<span>include</span>
+<span>a</span>
+<span>xxxx</span>
+<span>xxxx</span>
+<span style="color:green;">credit</span>
+<span style="color:blue;">card</span>
+<span>on</span>
+<span>my</span>
+<span>profile</span>
+<span>i</span>
+<span>have</span>
+<span>provided</span>
+<span>photo</span>
+<span>identification</span>
+<span>my</span>
+<span style="color:green;">ss</span>
+<span>and</span>
+<span>a</span>
+<span>copy</span>
+<span>of</span>
+<span>the</span>
+<span style="color:blue;">card</span>
+<span>because</span>
+<span>they</span>
+<span>have</span>
+<span>refused</span>
+<span>to</span>
+<span style="color:green;">update</span>
+<span>my</span>
+<span>profile</span>
+<span>my</span>
+<span style="color:green;">credit</span>
+<span style="color:green;">score</span>
+<span>remains</span>
+<span>below</span>
+<span>600</span>
+<span>and</span>
+<span>i</span>
+<span>have</span>
+<span>been</span>
+<span>denied</span>
+<span style="color:green;">credit</span>
+<span>on</span>
+<span style="color:blue;">several</span>
+<span>occasions</span>
+<span>i</span>
+<span>have</span>
+<span>had</span>
+<span>the</span>
+<span style="color:blue;">card</span>
+<span>for</span>
+<span>at</span>
+<span>least</span>
+<span style="color:green;">4</span>
+<span>years</span>
+<span>yet</span>
+<span>my</span>
+<span style="color:green;">credit</span>
+<span>profile</span>
+<span>with</span>
+<span style="color:green;">equifax</span>
+<span>claims</span>
+<span>i</span>
+<span>have</span>
+<span>no</span>
+<span style="color:green;">credit</span>
+<span>history</span>
+<span>i</span>
+<span>have</span>
+<span>contacted</span>
+<span>them</span>
+<span>via</span>
+<span>letters</span>
+<span style="color:blue;">online</span>
+<span>disputes</span>
+<span>and</span>
+<span>telephone</span>
+<span>to</span>
+<span>no</span>
+<span>avail</span>
+<span>please</span>
+<span>advise</span>
+<span>as</span>
+<span>to</span>
+<span>other</span>
+<span>remedies</span>
+<span>available</span>
+<span>to</span>
+<span>me</span>
+</div>
+
+---
+
+## Credit Complaint #2
+
+&lt;span, style = 'color:green;'&gt;Credit&lt;/span&gt;
+&lt;span, style = 'color:black;'&gt;And&lt;/span&gt;
+&lt;span, style = 'color:blue;'&gt;Other&lt;/span&gt;
+
+<div>
+<span>i</span>
+<span>have</span>
+<span>disputed</span>
+<span>items</span>
+<span>with</span>
+<span style="color:green;">equifax</span>
+<span>back</span>
+<span>on</span>
+<span>xx</span>
+<span>xx</span>
+<span>2019</span>
+<span>and</span>
+<span>they</span>
+<span>have</span>
+<span>failed</span>
+<span>to</span>
+<span>respond</span>
+<span>i</span>
+<span>have</span>
+<span>also</span>
+<span>sent</span>
+<span>them</span>
+<span>a</span>
+<span style="color:blue;">notice</span>
+<span>that</span>
+<span>they</span>
+<span>failed</span>
+<span>to</span>
+<span>respond</span>
+<span>and</span>
+<span>they</span>
+<span>have</span>
+<span>ignore</span>
+<span>my</span>
+<span>request</span>
+<span>to</span>
+<span style="color:green;">dispute</span>
+<span>items</span>
+<span>that</span>
+<span>are</span>
+<span style="color:green;">reporting</span>
+<span>on</span>
+<span>my</span>
+<span style="color:green;">credit</span>
+<span>reports</span>
+</div>
+
+---
+
+## Other Complaint #1
+
+&lt;span, style = 'color:green;'&gt;Credit&lt;/span&gt;
+&lt;span, style = 'color:black;'&gt;And&lt;/span&gt;
+&lt;span, style = 'color:blue;'&gt;Other&lt;/span&gt;
+
+<div>
+<span>i</span>
+<span>was</span>
+<span>contacted</span>
+<span>on</span>
+<span>xxxx</span>
+<span>xx</span>
+<span>xx</span>
+<span>2019</span>
+<span>by</span>
+<span>portfolio</span>
+<span style="color:blue;">recovery</span>
+<span>associates</span>
+<span>about</span>
+<span>a</span>
+<span>past</span>
+<span style="color:blue;">debt</span>
+<span>that</span>
+<span>i</span>
+<span>have</span>
+<span>no</span>
+<span>knowledge</span>
+<span>of</span>
+<span>having</span>
+<span>the</span>
+<span>representative</span>
+<span>mentioned</span>
+<span>that</span>
+<span>there</span>
+<span>was</span>
+<span>an</span>
+<span>attempt</span>
+<span>to</span>
+<span>deliver</span>
+<span>paperwork</span>
+<span>but</span>
+<span>paperwork</span>
+<span>delivery</span>
+<span>was</span>
+<span>at</span>
+<span>a</span>
+<span>different</span>
+<span>location</span>
+<span>that</span>
+<span>my</span>
+<span style="color:blue;">physical</span>
+<span>home</span>
+<span>address</span>
+<span>upon</span>
+<span>requesting</span>
+<span>further</span>
+<span>clarification</span>
+<span>the</span>
+<span>representative</span>
+<span>continued</span>
+<span>to</span>
+<span>say</span>
+<span>how</span>
+<span>i</span>
+<span>was</span>
+<span>refusing</span>
+<span>to</span>
+<span style="color:blue;">pay</span>
+<span>the</span>
+<span style="color:blue;">debt</span>
+<span>i</span>
+<span style="color:blue;">never</span>
+<span>refused</span>
+<span>to</span>
+<span style="color:blue;">pay</span>
+<span>the</span>
+<span style="color:blue;">debt</span>
+<span>i</span>
+<span>would</span>
+<span>just</span>
+<span>like</span>
+<span>clarification</span>
+<span>on</span>
+<span>the</span>
+<span style="color:blue;">debt</span>
+<span>i</span>
+<span>will</span>
+<span>be</span>
+<span>delivering</span>
+<span>a</span>
+<span>cease</span>
+<span>and</span>
+<span>desist</span>
+<span>order</span>
+<span>to</span>
+<span>the</span>
+<span>aforementioned</span>
+<span>party</span>
+</div>
+
+---
+
+## Other Complaint #2
+
+&lt;span, style = 'color:green;'&gt;Credit&lt;/span&gt;
+&lt;span, style = 'color:black;'&gt;And&lt;/span&gt;
+&lt;span, style = 'color:blue;'&gt;Other&lt;/span&gt;
+
+<div>
+<span>xxxx</span>
+<span>xxxx</span>
+<span>is</span>
+<span>alleging</span>
+<span>that</span>
+<span>i</span>
+<span>owe</span>
+<span>them</span>
+<span>690.00</span>
+<span>i</span>
+<span>did</span>
+<span>not</span>
+<span>breach</span>
+<span>my</span>
+<span>rental</span>
+<span>contract</span>
+<span>and</span>
+<span>do</span>
+<span>not</span>
+<span style="color:blue;">understand</span>
+<span>the</span>
+<span style="color:blue;">charges</span>
+<span>against</span>
+<span>me</span>
+<span>i</span>
+<span>have</span>
+<span style="color:blue;">attempted</span>
+<span>to</span>
+<span>resolve</span>
+<span>the</span>
+<span>matter</span>
+<span>but</span>
+<span>every</span>
+<span>time</span>
+<span>i</span>
+<span>try</span>
+<span>the</span>
+<span>claim</span>
+<span>that</span>
+<span>i</span>
+<span>owe</span>
+<span>them</span>
+<span>additional</span>
+<span style="color:blue;">monies</span>
+<span>i</span>
+<span>believe</span>
+<span>that</span>
+<span>i</span>
+<span>am</span>
+<span>a</span>
+<span>victim</span>
+<span>of</span>
+<span>fraud</span>
+<span>and</span>
+<span>unfair</span>
+<span>business</span>
+<span>tactics</span>
+<span>management</span>
+<span>is</span>
+<span>run</span>
+<span>very</span>
+<span>poorly</span>
+<span>and</span>
+<span>one</span>
+<span style="color:green;">person</span>
+<span>says</span>
+<span>one</span>
+<span>thing</span>
+<span>another</span>
+<span>says</span>
+<span>another</span>
+<span>thing</span>
+<span>i</span>
+<span>do</span>
+<span>have</span>
+<span>documentation</span>
+<span>to</span>
+<span>prove</span>
+<span>my</span>
+<span>innocence</span>
+</div>
+
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

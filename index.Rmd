@@ -363,3 +363,129 @@ final_fit %>%
   collect_predictions() %>%
   conf_mat(product, .pred_class)
 ```
+
+---
+
+# Variable importance - how is our model thinking
+
+```{r, echo=FALSE}
+wi_data <- wf_spec_final %>%
+  fit(complaints_train) %>%
+  pull_workflow_fit() %>%
+  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %>%
+  mutate(Variable = stringr::str_remove_all(Variable, "tfidf_text_")) %>%
+  filter(Importance != 0)
+
+wi_data %>%
+  mutate(
+    Importance = abs(Importance)
+    ) %>%
+  filter(Importance != 0) %>%
+  group_by(Sign) %>%
+  top_n(20, Importance) %>%
+  ungroup() %>%
+  ggplot(aes(
+    x = Importance,
+    y = forcats::fct_reorder(Variable, Importance),
+    fill = Sign
+  )) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(expand = c(0, 0)) +
+  facet_wrap(~Sign, scales = "free") +
+  labs(
+    y = NULL,
+    title = "Variable importance for predicting year of Supreme Court opinions",
+    subtitle = "These features are the most importance in predicting the year of an opinion"
+  )
+```
+
+---
+
+```{r, echo=FALSE}
+highlighter <- function(x, sign) {
+  if(is.na(sign)) {
+    htmltools::span(x)
+  } else if (sign == "NEG") {
+    htmltools::span(x, style = 'color:green;')
+  } else if (sign == "POS") {
+    htmltools::span(x, style = 'color:blue;')
+  }
+}
+```
+
+## Credit Complaint #1
+
+<span, style = 'color:green;'>Credit</span>
+<span, style = 'color:black;'>And</span>
+<span, style = 'color:blue;'>Other</span>
+
+```{r, echo=FALSE}
+complaints_train %>%
+  filter(product == "Credit", nchar(text) < 800) %>%
+  slice(1) %>%
+  tidytext::unnest_tokens(words, text) %>%
+  left_join(wi_data, by = c("words" = "Variable")) %>%
+  mutate(words = map2(words, Sign, highlighter)) %>%
+  pull(words) %>%
+  htmltools::div()
+```
+
+---
+
+## Credit Complaint #2
+
+<span, style = 'color:green;'>Credit</span>
+<span, style = 'color:black;'>And</span>
+<span, style = 'color:blue;'>Other</span>
+
+```{r, echo=FALSE}
+complaints_train %>%
+  filter(product == "Credit", nchar(text) < 800) %>%
+  slice(2) %>%
+  tidytext::unnest_tokens(words, text) %>%
+  left_join(wi_data, by = c("words" = "Variable")) %>%
+  mutate(words = map2(words, Sign, highlighter)) %>%
+  pull(words) %>%
+  htmltools::div()
+```
+
+---
+
+## Other Complaint #1
+
+<span, style = 'color:green;'>Credit</span>
+<span, style = 'color:black;'>And</span>
+<span, style = 'color:blue;'>Other</span>
+
+```{r, echo=FALSE}
+complaints_train %>%
+  filter(product == "Other", nchar(text) < 800) %>%
+  slice(1) %>%
+  tidytext::unnest_tokens(words, text) %>%
+  left_join(wi_data, by = c("words" = "Variable")) %>%
+  mutate(words = map2(words, Sign, highlighter)) %>%
+  pull(words) %>%
+  htmltools::div()
+```
+
+---
+
+## Other Complaint #2
+
+<span, style = 'color:green;'>Credit</span>
+<span, style = 'color:black;'>And</span>
+<span, style = 'color:blue;'>Other</span>
+
+```{r, echo=FALSE}
+complaints_train %>%
+  filter(product == "Other", nchar(text) < 800) %>%
+  slice(2) %>%
+  tidytext::unnest_tokens(words, text) %>%
+  left_join(wi_data, by = c("words" = "Variable")) %>%
+  mutate(words = map2(words, Sign, highlighter)) %>%
+  pull(words) %>%
+  htmltools::div()
+```
+
+---
+
