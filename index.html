@@ -24,6 +24,9 @@ class: center, middle, title-slide
 
 
 
+
+
+
 class: center, middle
 
 # Hello!
@@ -47,11 +50,14 @@ class: center, middle
 
 --
 
-* We will walk through our case study using slides and live coding
+- We will walk through our case study using slides and live coding
+
+
 
 --
 
-* After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself 💪
+
+- After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself 💪
 
 ---
 
@@ -63,7 +69,7 @@ Let's look at complaints submitted to the [United States Consumer Financial Prot
 ```r
 library(tidyverse)
 
-complaints &lt;- read_csv("data/complaints.csv.gz") %&gt;% sample_frac(0.1)
+complaints &lt;- read_csv("data/complaints.csv.gz") %&gt;% sample_frac(0.005)
 names(complaints)
 ```
 
@@ -91,21 +97,21 @@ complaints %&gt;%
 ```
 
 ```
-##  [1] "I don't recognize this inquiries. I never applied for it. Except as otherwise provided in this section, a consumer reporting agency shall block the reporting of any information in the file of a consumer that the consumer identifies as information that resulted from an alleged identity theft, not later than 4 business days after the date of receipt by such agency of ( 1 ) appropriate proof of the identity of the consumer ; ( 2 ) a copy of an identity theft report ; ( 3 ) the identification of such information by the consumer ; and ( 4 ) a statement by the consumer that the information is not information relating to any transaction by the consumer. ( b ) Notification. A consumer reporting agency shall promptly notify the furnisher of information identified by the consumer under subsection ( a ) of this section ( 1 ) that the information may be a result of identity theft ; ( 2 ) that an identity theft report has been filed ; ( 3 ) that a block has been requested under this section ; and ( 4 ) of the effective dates of the block. ( c ) Authority to decline or rescind. ( 1 ) In general. A consumer reporting agency may decline to block, or may rescind any block, of information relating to a consumer under this section, if the consumer reporting agency reasonably determines that ( A ) the information was blocked in error or a block was requested by the consumer in error ; ( B ) the information was blocked, or a block was requested by the consumer, on the basis of a material misrepresentation of fact by the consumer relevant to the request to block ; or ( C ) the consumer obtained possession of goods, services, or money as a result of the blocked transaction or transactions. ( 2 ) Notification to consumer. If a block of information is declined or rescinded under this subsection, the affected consumer shall be notified promptly, in the same manner as consumers are notified of the reinsertion of information under section 1681i ( a ) ( 5 ) ( B ) of this title. ( 3 ) Significance of block. For purposes of this subsection, if a consumer reporting agency rescinds a block, the presence of information in the file of a consumer prior to the blocking of such information is not evidence of whether the consumer knew or should have known that the consumer obtained possession of any goods, services, or money as a result of the block. ( d ) Exception for resellers. ( 1 ) No reseller file. This section shall not apply to a consumer reporting agency, if the consumer reporting agency ( A ) is a reseller ; ( B ) is not, at the time of the request of the consumer under subsection ( a ) of this section, otherwise furnishing or reselling a consumer report concerning the information identified by the consumer ; and ( C ) informs the consumer, by any means, that the consumer may report the identity theft to the Bureau to obtain consumer information regarding identity theft. ( 2 ) Reseller with file. The sole obligation of the consumer reporting agency under this section, with regard to any request of a consumer under this section, shall be to block the consumer report maintained by the consumer reporting agency from any subsequent use, if ( A ) the consumer, in accordance with the provisions of subsection ( a ) of this section, identifies, to a consumer reporting agency, information in the file of the consumer that resulted from identity theft ; and ( B ) the consumer reporting agency is a reseller of the identified information. ( 3 ) Notice. In carrying out its obligation under paragraph ( 2 ), the reseller shall promptly provide a notice to the consumer of the decision to block the file. Such notice shall contain the name, address, and telephone number of each consumer reporting agency from which the consumer information was obtained for resale. ( e ) Exception for verification companies. The provisions of this section do not apply to a check services company, acting as such, which issues authorizations for the purpose of approving or processing negotiable instruments, electronic fund transfers, or similar methods of payments, except that, beginning 4 business days after receipt of information described in paragraphs ( 1 ) through ( 3 ) of subsection ( a ) of this section, a check services company shall not report to a national consumer reporting agency described in section 1681a ( p ) of this title, any information identified in the subject identity theft report as resulting from identity theft. ( f ) Access to blocked information by law enforcement agencies. No provision of this section shall be construed as requiring a consumer reporting agency to prevent a Federal, State, or local law enforcement agency from accessing blocked information in a consumer file to which the agency could otherwise obtain access under this subchapter."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-##  [2] "NOTE : I have selected available options regarding the complaint but it is regarding the purchases that I did not make as the card was never used, activated or opened from the origina wrapper until XXXX - details below. \n\nCOMPLAINT about Mastercard Gift Card but inside wrapper pamphlet says \" US Bank Gift Card : Ok, so one more thing to do before the year end.\n\nI purchased 2 Mastercard gift cards in XX/XX/XXXX from XXXX ( I still have the original receipt ) mainly to use these cards for phone recharging and some online purchases. Before this I had purchased a similar {$200.00} Mastercard for the first time and was using it without any issues and since do small amounts in recharges the first one was still good and I had put away these other 2 gift cards in my safe box ie. I never opened them or activated them or used them. One thing I would like to mention is that I did not know myraid of \" GOTCHAS '' these cards have and as the date of expiration on these is XXXX, I thought they were good as long as I did not activate and use them and never thought these are susceptible to fraud when they have not been activated or used. In fact when I search online ( and if you search online ) it seems that there have been thousands of users who have been defrauded. It is one thing when a card is active and used online and some thief or hacker gets a hold of the card number and uses it for fraudulent purchases - we all know this happens, but what if a card has never been activated or used for any purchases and put away in a safe with original wrapper unopened. How does a thief get a hold of the card information? It seems like this happens often ( specifically with Mastercard Gift Cards by US BANK ) and again if you go online you can see several forums where users discuss this. This is something I was not aware of. \n\nSo, in XXXX XXXX I opened one of the 2 cards that I had in my safe ( in original wrapper ) to start using it and upon calling the phone number to check my balance I found that the card had been charged a \" {$2.00} fee for each month '' for inactivity and almost half of the account had been drained by monthly inactivity fees. Again, I was not aware of this but I take responsibility for it although I would like to mention that it seems like a novel idea to charge someone for \" not using a product '' - we all know companies charge for something when a product is used but how about charging someone for not using it? Is this done by design to make more money or does it really cost the bank in fees when the consumer is not using the service? \n\nHowever, the real issue here is that with regards to my 2nd card and when I checked the balance on that it had a balance of {$11.00} ( something like that ) and I was shocked. So, I called the customer service. Without going into all the details of the conversation which will make this even longer, he first told me that he did not know as there is history for only 24 months in the system. Then after I pressed him and told him that I never used the card before then said that the card was first used in XXXX of XXXX there were two charges for {$43.00} or something. So, I was not able to understand how he was able to get that information beyond 24 months which he was not willing to share first. Again, I would like to reiterate that I had never opened the wrapper, activated or used this card and I told him that and at that he said that he supected fraud and that he was going to lock the card and if I wanted to use the card I have to fax my original receipt and my address etc., so they can mail me a new card and when I asked him if it was for the original purchase amount of {$200.00}, he said no it would be for {$11.00}. I asked to speak with a supervisor and he said he would have someone call me back. Anyway, after that I spoke with 2-3 agents and they said they would refund me back the fees. Later I understood that by that they meant that they were \" only refunding me the {$2.00} fee '' and not restore the original card. Different agents told me different versions. Anyway, I wanted to complain to CFPB about this since XXXX ( as  you can see how long this is ) and just did not have the time to do so and wanted to this before the year end. \n\nThe issue is that as of today, they have locked that card, ( even with what was left {$11.00} ) and for that it seems I have to fax them and write them, etc., I am not willing to do that and as I told the agent in anger they can keep that, since they have taken the rest already. This is disgusting and if you search online, this seems to happen a lot where theives steal money from \" never used/inactivated '' cards and yet banks like US Bank and Mastercard continue to issue these cards every year but customers lose millions of dollars to fraud and fees. I hope they can resolve this and I hope that your agency will look into the whole issue of \" GIFT CARD '' business where banks are profiting at the expense of customers with inactivity fees for \" not using '' the service and of course the issue of fraud.\n\nBottomline is that if they are willing to resolve and restore my original amount to that card or mail me a new card with the original {$200.00} purchase ( minus any monthly fees for inactivity, as absurd as they are and fees for not using a product ) I will fax them my original receipt and the mailing address, etc., and please provide me the proper contact phone number or email address and not your general phone system where I will have to go through the whole history again with another helpless rep. \n\nThank You"
-##  [3] "XXXX XXXX credit card services reported that there was an incorrect 30 day late payment on my credit card. After an investigation, XXXX XXXX realized they made an error and reported it to XXXX, who updated my credit file. However, Equifax has not. Please have them fix this problem immediately."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-##  [4] "I opened a bank account with Chase Bank in XXXX XXXX Tx. A week after i deposited a check, my funds are still not available. I've called the bank and asked them to remove the hold. They claim the hold is due to my address not being verified. I did verify my address with the bank representative, using my Texas state identification card. I also received mail from Chase bank at this address. I'm not understanding why close to {$1000.00} of my money is being held from me because of a mistake made by the bank."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-##  [5] "I was a victim of fraud and for whatever reason Exeperian is not removing an account that even the company has indicated they were removing it because it was fraud. There is an account reporting under XXXX XXXX XXXX account number XXXX for which I have attached the correspondence with XXXX showing that Experian never even attempted to rectify this."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-##  [6] "I had a nordstrom visa creditcard (issued by tdbank ) was closed by the grantor in XX/XX/XXXX, and there were pending charges on nordstrom.com were canceled. As a result, now I have overpay the balance, since all orders were canceled.  i want the bank refund the money how much i overpaid . I have called and talked to the customer service a few time and they said would call me back and never called."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-##  [7] "DEROGATORY ACCUSATIONS INCLUDING ALLEGED INQUIRIES MUST BE METRO 2 COMPLIANT TO RETAIN OR REPORT SO DELETE ANY NOT PHYSICALLY WITH PROOF OF PERMISSIBLE PURPOSE FROM THE EXACTLY AND LEGALLY IDENTIFIED ME.I DO NOT AUTHORIZE YOU TO REPORT NOT PROVEN COMPLIANT INFORMATION AND YOU MUST COMPLY.. DELETE XXXX XXXX, XXXX XXXX, XXXX XXXX"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-##  [8] "Made 2 payments to my account. Never credited but has cleared my checking account. Talked to several people on the phone still not resolved. My bank confirmed check was cashed by usaa"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-##  [9] "XXXX has reported my name in error conjunction with a collection account. This reporting has been on my credit file since 2014 and has cost me financially due to incorrect information being reported and maintained by XXXX."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-## [10] "On XX/XX/XXXX and XXXX, 2019 a company by the name \" XXXX XXXXXXXX XXXX '' just popped up on my XXXX, XXXX, and Transunion credit report file. The original debtor is XXXX XXXX XXXX! This account does not belong to me, as all my bills have always been in my husband 's name. When I try to contact XXXX XXXX XXXX, my calls are not be accepted, their recording says their too busy to take my call. I have filed a dispute with XXXX and Transunion."
+##  [1] "On XX/XX/2018 I applied for an Ally Bank credit card. On XX/XX/2018 XXXX XXXX accessed my XXXX credit bureau report. \n\nSubsequently XXXX XXXX sent me a letter purporting to be an Adverse Action / ECOA Notice. This notice, required by law, must describe the real and actually reasons why my application was denied. Instead, Ally Bank subtitled untruthful, fraudulent reasons. \n\nXXXX XXXX simply regurgitated word for word the four factors that FICO Score uses when describing why one 's credit score is not higher than it actually is. \n\nFor example, FICO stated my credit score was only XXXX because : Lack of recent installment loan information XXXX XXXX stated my application was denied because : Lack of recent installment loan information XXXX XXXX 's actions do not comply with the law."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+##  [2] "THIS ACCOUNT DOES NOT BELONG TO ME AND I WOULD LIKE IT TO BE REMOVED FROM MY CREDIT REPORT."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+##  [3] "XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX, MO. XXXX XX/XX/XXXX RE : Navient Account Dispute To Whom It May Concern : My name is XXXX XXXX and I had a private student with Navient. It originated in XX/XX/XXXX and became default on XX/XX/XXXX. XX/XX/XXXX, I became disabled due to XXXX XXXX XXXX. When I learned about my disability I immediately informed Navient. They did not offer any resolution, so my account continued to accrue additional fees. It was charged off on XX/XX/XXXX and sent to XXXX XXXX XXXX  in Illinois. \n\nI called both Navient and XXXX XXXX XXXX today and was immediately given the run around. I called Navient to see if the statute of limitation had expired on my loan and was immediately put on hold. When they returned they immediately referred me to XXXX XXXX XXXX and the credit bureaus. \n\nBelow are the detailed summary of each interaction with each Navient and XXXX XXXX XXXX customer service representatives that occurred today. \n\nCalled XXXX XXXX XXXX and spoke to XXXX at XXXX XXXX and he refused to give me the status of the statute of limitation on my loan and referred me back to Navient to get that information. \n\nCalled Navient and spoke with XXXX at XXXX XXXX and she refused to give me the status of the statute of limitations on my loan and said that the credit bureaus would be the ones who could remove it from my credit report and provide the status of my statute of limitation on my loan. \n\nCalled Navient at XXXX and the rep referred me to the credit bear urea and refused to give me the status of the statute of limitation on my loan Called Navient and spoke to XXXX at XXXX who refused to give me the information that I was asking for, after pressuring he said the statute of limitation on this account was not active, but it will be as of XX/XX/XXXX. It was charged off on XX/XX/XXXX and its 7 years after that delinquent date. So, I decided to call back to verify that information and was told the following below. \n\nCalled Navient and spoke with XXXX at XXXX XXXX who referred me back to the credit bureaus and refused to give me the status of the statute of limitation on my loan. \n\nCalled Navient and spoke with XXXX at XXXX XXXX and was told that the account is not a-part of the statute of limitations because its in Missouri. I pushed further and was put on a long hold. She came back and asked me if I have spoken to the state of Missouri. I told her I have and questioned why was she inquiring about that, rather than providing the information that I requested. \n\nNavient and their treacherous acts and policies are causing borrowers like myself a whole world of credit problems. My loan should be removed from my credit report since the statute of limitation has passed. This account is over 10 years old and they are still reporting on my credit report that I am late. As I told Navient and the collection agency that has the loan now. I am currently getting social security because of my disability. Can you lease assist me with get the true status of the statute of limitations for my loan. The XXXX XXXX XXXX account number is XXXX. \n\nThank, XXXX XXXX XXXX"
+##  [4] "Multiple Hard Inquiries were made without my consent or incorrect dates and followed credit bureau instructions to reach the lenders but they havent been able to help."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+##  [5] "I've reached out to XXXX XXXX on two separate occasions requesting lawful information under the Fair Credit Billing act. All letters were sent via priority mail with tracking. All requests were received by XXXX 'S Credit Dept, yet ignored. These are clear violations of the Fair Credit Billing Act. The interesting part is that I've disputed this account with all three credit bureaus on multiple occasions and the bureaus \" claim '' that XXXX XXXX responds to them and verifies the account. It's become very clear that the information I'm requesting no longer exist with XXXX XXXX. \n\nAfter sending letters to the original creditor and not getting a response I decided to dispute it with Transunion, XXXX  and XXXX. I've even sent them a copy of the letters sent to XXXX XXXX and asked them to remove the data but they have also ignored my request. The bureaus can clearly see that I've put forth effort to reach the original creditor for verification/documentation but they decide to leave it on my credit file. The bureaus are violating the FCRA by allowing this data unverified data to be reported. \n\nI've attached all correspondence sent to XXXX XXXX, including my most recent letter dated XX/XX/2019 which is being mailed out today. Delivery confirmation of previous letters is also attached."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+##  [6] "Last year I had to move. I didnt have the money to move so I went to the title loan company. I got {$1500.00} from them. I ran into issues and was having problems paying so I had to refinance. Which of course they screwed me over even more. They told me on a {$1500.00} loan that it would cost {$6000.00} to pay them back. Fast forward to now. They repossessed my only vehicle Saturday XX/XX/2019. Without warning. I also havent recieved a phone call from them in over a month. Nor have a I revived a call about them wanting to repossess my vehicle. The vehicle is my only mode of transportation. It has all of my tools and work material in it. They are refusing to tell me where the truck is so I can get all of my tools. And they are refusing to work with me. Saying they need a minimum of {$1200.00} up front just to release the truck. I have worked less than 40 hours this year and have no way to pay that kind of money. I cant even pay rent this month let alone pay {$1200.00} to a company that is in it to XXXX people over. I need my vehicle back as soon as possible so I can start to pay them back. I cant pay them back without the vehicle because I can not get to work."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+##  [7] "As of XX/XX/XXXX we ran our credit card bill up. We owed {$1400.00} on the XX/XX/XXXX statement. During XX/XX/XXXX I made these payments : XX/XX/XXXX {$2000.00} XX/XX/XXXX {$240.00} and XX/XX/XXXX $ XXXX.The payment date for the XXXX statement was XX/XX/XXXX. The new balance for XXXX was {$4300.00} with a payment due date of XX/XX/XXXX. I made a payment on XX/XX/XXXX for {$2500.00} that is not showing on this statement because no payments were showing but I paid the {$2500.00} before the due date. I did not pay this month in full and accrued interest of {$45.00} which I do not debate. Then in XXXX my amount owed was {$370.00} with a due date of XX/XX/XXXX. I paid XX/XX/XXXX {$130.00} XX/XX/XXXX {$2500.00} and XX/XX/XXXX {$5700.00}. I paid all purchases besides the pending purchases which were the {$370.00} before the credit card close date. I accrued interest which I disputed of {$75.00}. I was told by TWO citi representatives if I pay the credit card off full in two consecutive months, then the interest would stop accruing. So on XX/XX/XXXX I paid XXXX, XX/XX/XXXX XXXX and XX/XX/XXXX XXXX as the purchases posted. Then on XX/XX/XXXX I paid the remaining posted purchases of {$820.00} before the credit card close date and YET they still charged me interest of {$6.00}. I contacted them again and because my XXXX has a remaining statement balance it was not considered \" paid in full. '' I have never had a credit card company that required me pay two consecutive months to stop interest or have I ever had a credit card charge me interest when I have paid the credit card down to a XXXX balance beside pending purchases. I am a XXXX member and when they switched from XXXX XXXX, we had no say. There was no paperwork we signed. To get a copy of the card agreement you have to request it. This is by far the worst credit card I have ever had. Citi does not allow customers to pay pending purchases online and XXXX XXXX allowed me to. I could eliminate some stress if it allowed me to pay pending purchases but they are using this as leverage to charge interest to customers.I don't see how a credit card company can charge interest when the card was paid in full."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+##  [8] "Over the past few weeks we have received several robocalls from phone number XXXX. The recorded message says it is from XXXX and XXXX, that they are debt collectors,  and that we should call XXXX. The message does not give any indication of what this is about. We have no overdue bills."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+##  [9] "Experian Re : Chapter XXXX Bankruptcy To Whom It May Concern : I am disturbed that you continue to list the dismissed bankruptcy as confirmed within my crediti file. Although it is your policy to keep reporting bankruptcies that are filed, dismissed or adjudicated for ten years, the Fair credit Reporting Act mentions nothing in Section 1681c relating to bankruptcy about dismissals or filings. The law clearly states from \" date of adjudication '' or date of \" order of relief ''. Any case, civil or otherwise, which is dismissed no longer exists in the eye of the law and a case filed may never have actually been adjudicated. Therefore, you have no right to maintain information which the government has deemed nonexistent. Therefore, pursuant to Section 1681 ( a ) ( 5 ) of the FCRA, you must delete this information from my credit report and send me an updated copy when this action is completed. Considering that this does not require an investigation, I would appreciate your response within 14 calendar days from receipt of this letter. Again I never paid or walked into court for such a matter and by law it does not exists"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+## [10] "Several disputes has been filed to have this item removed from my credit file. I never opened an account with XXXX or XXXX XXXX XXXX. \nDates disputes has been filed with credit bureaus regarding this company was on XX/XX/XXXX, XX/XX/XXXX, and XX/XX/XXXX. And this account still has not been removed from my credit file. I don't even use my credit for anything, I have a nothing on my credit file. I'm a XXXX year old XXXX XXXX, that don't even understand how to use my credit. Therefore, this account can't possibly belong to me."
 ```
 
 ---
 
-# Packages
+# Modeling Packages
 
 
 ```r
@@ -113,32 +119,26 @@ library(tidymodels)
 library(textrecipes)
 ```
 
+- [tidymodels](https://www.tidymodels.org/) is a collection of packages for modeling and machine learning using tidyverse principles.
+- [textrecipes](https://textrecipes.tidymodels.org/) extends the recipes package to be able to handle text preprocessing.
+
 ---
 
-# data
+# Modeling workflow
 
+![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
 
-```r
-talks &lt;- readr::read_csv("data/talks.csv")
-talks
-```
+---
 
-```
-## # A tibble: 430 x 3
-##    description                                                              language  year
-##    &lt;chr&gt;                                                                    &lt;chr&gt;    &lt;dbl&gt;
-##  1 "Have you ever wanted to write a GUI application in Python that you can… python    2019
-##  2 "We rarely think about the dot “.” between our objects and their fields… python    2019
-##  3 "Account security means making sure your users are only ones who can ac… python    2019
-##  4 "Do you feel overwhelmed by the prospect of having to find a new softwa… python    2019
-##  5 "Everyone’s talking about it. Everyone’s using it. But most likely, the… python    2019
-##  6 "We will look into a day in the life of a Software Engineer with limite… python    2019
-##  7 "Medieval European Nobility was obsessed with Lineage. They created a H… python    2019
-##  8 "In July of 2018, Guido van Rossum stepped down as “Benevolent Dictator… python    2019
-##  9 "If you maintain a library, how can you innovate without breaking the p… python    2019
-## 10 "Embroidery is a technology that dates back centuries and is still popu… python    2019
-## # … with 420 more rows
-```
+# Class imbalance
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: inverse
+
+## We will simplify the task by turning it into a binary classification task
 
 ---
 
@@ -146,11 +146,63 @@ talks
 
 
 ```r
-split &lt;- initial_split(talks, strata = language)
+set.seed(1234)
 
-train_data &lt;- training(split)
-test_data &lt;- testing(split)
+credit &lt;- "Credit reporting, credit repair services, or other personal consumer reports"
+
+complaints2class &lt;- complaints %&gt;%
+  mutate(product = factor(if_else(
+    condition = product == credit, 
+    true = "Credit", 
+    false = "Other"))) %&gt;%
+  rename(text = consumer_complaint_narrative)
+
+complaints_split &lt;- initial_split(complaints2class, strata = product)
+
+complaints_train &lt;- training(complaints_split)
+complaints_test &lt;- testing(complaints_split)
 ```
+
+---
+
+# What variables can we use
+
+
+```r
+names(complaints_train)
+```
+
+```
+##  [1] "date_received"                "product"                     
+##  [3] "sub_product"                  "issue"                       
+##  [5] "sub_issue"                    "text"                        
+##  [7] "company_public_response"      "company"                     
+##  [9] "state"                        "zip_code"                    
+## [11] "tags"                         "consumer_consent_provided"   
+## [13] "submitted_via"                "date_sent_to_company"        
+## [15] "company_response_to_consumer" "timely_response"             
+## [17] "consumer_disputed"            "complaint_id"
+```
+
+---
+
+# Variable selecition checklist:
+
+- Are we ethically allowed to use this variable?
+- Are we legally allowed to use this variable?
+- Would this variable be available to us at prediction time?
+- Would this variable add more signal then noise?
+- Would this variable to explainable?
+
+---
+
+TODO: 
+
+talk about which variables fall into which catagory
+
+zipcode would be clearly in catagory 1.
+
+We end up using: date_received + tags + consumer_complaint_narrative
 
 ---
 
@@ -158,22 +210,51 @@ test_data &lt;- testing(split)
 
 
 ```r
-rec_spec &lt;- recipe(language ~ ., data = train_data) %&gt;%
-  step_tokenize(description) %&gt;%
-  step_tokenfilter(description) %&gt;%
-  step_stopwords(description) %&gt;%
-  step_tfidf(description) %&gt;%
-  step_scale(year)
+complaints_rec &lt;-
+  recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %&gt;%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %&gt;%
+  step_rm(date_received) %&gt;%
+  step_dummy(has_role("dates")) %&gt;%
+  step_unknown(tags) %&gt;%
+  step_dummy(tags) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %&gt;%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 250) %&gt;%
+  step_tfidf(text)
 ```
 
 ---
+
+TODO:
+
+talk about preprocessing step by step
+
+
+---
+
+# Let's talk about stopwords!
+
+---
+
 
 # Model specification
 
 
 ```r
-lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
-  set_engine("glmnet")
+svm_spec &lt;- svm_rbf() %&gt;%
+  set_mode("classification") %&gt;%
+  set_engine("liquidSVM")
+
+svm_spec
+```
+
+```
+## Radial Basis Function Support Vector Machine Specification (classification)
+## 
+## Computational engine: liquidSVM
 ```
 
 ---
@@ -183,8 +264,8 @@ lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
 
 ```r
 wf_spec &lt;- workflow() %&gt;%
-  add_recipe(rec_spec) %&gt;%
-  add_model(lasso_spec)
+  add_recipe(complaints_rec) %&gt;%
+  add_model(svm_spec)
 ```
 
 ---
@@ -193,23 +274,341 @@ wf_spec &lt;- workflow() %&gt;%
 
 
 ```r
-param_grid &lt;- grid_regular(penalty(), levels = 50)
+param_grid &lt;- grid_regular(max_tokens(range = c(500, 2000)),
+  levels = 5
+)
+
+param_grid
 ```
+
+```
+## # A tibble: 5 x 1
+##   max_tokens
+##        &lt;int&gt;
+## 1        500
+## 2        875
+## 3       1250
+## 4       1625
+## 5       2000
+```
+
+---
+
 
 
 ```r
-data_boot &lt;- bootstraps(train_data, times = 10)
+complaints_folds &lt;- vfold_cv(complaints_train, v = 2)
+
+complaints_folds
 ```
+
+```
+## #  2-fold cross-validation 
+## # A tibble: 2 x 2
+##   splits            id   
+##   &lt;list&gt;            &lt;chr&gt;
+## 1 &lt;split [220/220]&gt; Fold1
+## 2 &lt;split [220/220]&gt; Fold2
+```
+
+---
 
 
 ```r
 set.seed(42)
 lasso_grid &lt;- tune_grid(
   wf_spec,
-  resamples = data_boot,
-  grid = param_grid
+  resamples = complaints_folds,
+  metrics = metric_set(accuracy, sensitivity, specificity),
+  grid = param_grid,control = control_grid(verbose = TRUE)
 ) 
 ```
+
+```
+## i Fold1: recipe 1/5
+```
+
+```
+## ! Fold1: recipe 1/5: max_features was set to '500', but only 9 was avail...
+```
+
+```
+## ✓ Fold1: recipe 1/5
+```
+
+```
+## i Fold1: recipe 1/5, model 1/1
+```
+
+```
+## ! Fold1: recipe 1/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold1: recipe 1/5, model 1/1
+```
+
+```
+## i Fold1: recipe 1/5, model 1/1 (predictions)
+```
+
+```
+## i Fold1: recipe 2/5
+```
+
+```
+## ! Fold1: recipe 2/5: max_features was set to '875', but only 9 was avail...
+```
+
+```
+## ✓ Fold1: recipe 2/5
+```
+
+```
+## i Fold1: recipe 2/5, model 1/1
+```
+
+```
+## ! Fold1: recipe 2/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold1: recipe 2/5, model 1/1
+```
+
+```
+## i Fold1: recipe 2/5, model 1/1 (predictions)
+```
+
+```
+## i Fold1: recipe 3/5
+```
+
+```
+## ! Fold1: recipe 3/5: max_features was set to '1250', but only 9 was avai...
+```
+
+```
+## ✓ Fold1: recipe 3/5
+```
+
+```
+## i Fold1: recipe 3/5, model 1/1
+```
+
+```
+## ! Fold1: recipe 3/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold1: recipe 3/5, model 1/1
+```
+
+```
+## i Fold1: recipe 3/5, model 1/1 (predictions)
+```
+
+```
+## i Fold1: recipe 4/5
+```
+
+```
+## ! Fold1: recipe 4/5: max_features was set to '1625', but only 9 was avai...
+```
+
+```
+## ✓ Fold1: recipe 4/5
+```
+
+```
+## i Fold1: recipe 4/5, model 1/1
+```
+
+```
+## ! Fold1: recipe 4/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold1: recipe 4/5, model 1/1
+```
+
+```
+## i Fold1: recipe 4/5, model 1/1 (predictions)
+```
+
+```
+## i Fold1: recipe 5/5
+```
+
+```
+## ! Fold1: recipe 5/5: max_features was set to '2000', but only 9 was avai...
+```
+
+```
+## ✓ Fold1: recipe 5/5
+```
+
+```
+## i Fold1: recipe 5/5, model 1/1
+```
+
+```
+## ! Fold1: recipe 5/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold1: recipe 5/5, model 1/1
+```
+
+```
+## i Fold1: recipe 5/5, model 1/1 (predictions)
+```
+
+```
+## i Fold2: recipe 1/5
+```
+
+```
+## ! Fold2: recipe 1/5: max_features was set to '500', but only 7 was avail...
+```
+
+```
+## ✓ Fold2: recipe 1/5
+```
+
+```
+## i Fold2: recipe 1/5, model 1/1
+```
+
+```
+## ! Fold2: recipe 1/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold2: recipe 1/5, model 1/1
+```
+
+```
+## i Fold2: recipe 1/5, model 1/1 (predictions)
+```
+
+```
+## i Fold2: recipe 2/5
+```
+
+```
+## ! Fold2: recipe 2/5: max_features was set to '875', but only 7 was avail...
+```
+
+```
+## ✓ Fold2: recipe 2/5
+```
+
+```
+## i Fold2: recipe 2/5, model 1/1
+```
+
+```
+## ! Fold2: recipe 2/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold2: recipe 2/5, model 1/1
+```
+
+```
+## i Fold2: recipe 2/5, model 1/1 (predictions)
+```
+
+```
+## i Fold2: recipe 3/5
+```
+
+```
+## ! Fold2: recipe 3/5: max_features was set to '1250', but only 7 was avai...
+```
+
+```
+## ✓ Fold2: recipe 3/5
+```
+
+```
+## i Fold2: recipe 3/5, model 1/1
+```
+
+```
+## ! Fold2: recipe 3/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold2: recipe 3/5, model 1/1
+```
+
+```
+## i Fold2: recipe 3/5, model 1/1 (predictions)
+```
+
+```
+## i Fold2: recipe 4/5
+```
+
+```
+## ! Fold2: recipe 4/5: max_features was set to '1625', but only 7 was avai...
+```
+
+```
+## ✓ Fold2: recipe 4/5
+```
+
+```
+## i Fold2: recipe 4/5, model 1/1
+```
+
+```
+## ! Fold2: recipe 4/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold2: recipe 4/5, model 1/1
+```
+
+```
+## i Fold2: recipe 4/5, model 1/1 (predictions)
+```
+
+```
+## i Fold2: recipe 5/5
+```
+
+```
+## ! Fold2: recipe 5/5: max_features was set to '2000', but only 7 was avai...
+```
+
+```
+## ✓ Fold2: recipe 5/5
+```
+
+```
+## i Fold2: recipe 5/5, model 1/1
+```
+
+```
+## ! Fold2: recipe 5/5, model 1/1: Solution may not be optimal: try trainin...
+```
+
+```
+## ✓ Fold2: recipe 5/5, model 1/1
+```
+
+```
+## i Fold2: recipe 5/5, model 1/1 (predictions)
+```
+
+---
+
+# lets talk about tokenization
+
+(this feels like an okay segway since using n-grams)
 
 ---
 
@@ -220,7 +619,7 @@ lasso_grid &lt;- tune_grid(
 autoplot(lasso_grid)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -229,18 +628,18 @@ autoplot(lasso_grid)
 
 ```r
 lasso_grid %&gt;%
-  show_best("roc_auc")
+  show_best("accuracy")
 ```
 
 ```
 ## # A tibble: 5 x 7
-##   penalty .metric .estimator  mean     n  std_err .config
-##     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;chr&gt;  
-## 1 0.0233  roc_auc binary     0.998    10 0.000611 Model42
-## 2 0.0146  roc_auc binary     0.998    10 0.000612 Model41
-## 3 0.0373  roc_auc binary     0.997    10 0.000631 Model43
-## 4 0.0596  roc_auc binary     0.997    10 0.000640 Model44
-## 5 0.00910 roc_auc binary     0.997    10 0.000749 Model40
+##   max_tokens .metric  .estimator  mean     n std_err .config
+##        &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
+## 1        500 accuracy binary     0.609     2 0.00455 Recipe1
+## 2        875 accuracy binary     0.609     2 0.00455 Recipe2
+## 3       1250 accuracy binary     0.609     2 0.00455 Recipe3
+## 4       1625 accuracy binary     0.609     2 0.00455 Recipe4
+## 5       2000 accuracy binary     0.609     2 0.00455 Recipe5
 ```
 
 ---
@@ -250,90 +649,8 @@ lasso_grid %&gt;%
 
 ```r
 wf_spec_final &lt;- wf_spec %&gt;%
-  finalize_workflow(parameters = select_best(lasso_grid, "roc_auc"))
+  finalize_workflow(parameters = select_best(lasso_grid, "accuracy"))
 ```
-
----
-
-# Variable importance - how is our model thinking
-
-&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" /&gt;
-
----
-
-# looking at one description
-
-&lt;span, style = 'color:green;'&gt;Python&lt;/span&gt; &lt;span, style = 'color:black;'&gt;And&lt;/span&gt; &lt;span, style = 'color:blue;'&gt;R&lt;/span&gt;
-
-<div>
-<span>account</span>
-<span>security</span>
-<span>means</span>
-<span>making</span>
-<span>sure</span>
-<span>your</span>
-<span style="color:green;">users</span>
-<span>are</span>
-<span>only</span>
-<span>ones</span>
-<span>who</span>
-<span style="color:green;">can</span>
-<span>access</span>
-<span>their</span>
-<span>accounts</span>
-<span>account</span>
-<span>takeovers</span>
-<span>happen</span>
-<span>for</span>
-<span>a</span>
-<span>variety</span>
-<span>of</span>
-<span>reasons</span>
-<span>password</span>
-<span>re</span>
-<span style="color:green;">use</span>
-<span>compromised</span>
-<span>computers</span>
-<span>guessable</span>
-<span>passwords</span>
-<span>and</span>
-<span>more</span>
-<span>this</span>
-<span style="color:green;">talk</span>
-<span>gives</span>
-<span>you</span>
-<span>concepts</span>
-<span>and</span>
-<span>concrete</span>
-<span>skills</span>
-<span>that</span>
-<span>will</span>
-<span>help</span>
-<span>you</span>
-<span>identify</span>
-<span>and</span>
-<span>prevent</span>
-<span>account</span>
-<span>takeovers</span>
-<span>and</span>
-<span>limit</span>
-<span>the</span>
-<span>damage</span>
-<span>it’s</span>
-<span>inspired</span>
-<span>by</span>
-<span>practices</span>
-<span>in</span>
-<span style="color:green;">use</span>
-<span>at</span>
-<span>github</span>
-<span>google</span>
-<span>and</span>
-<span>the</span>
-<span style="color:green;">python</span>
-<span style="color:blue;">package</span>
-<span>index</span>
-</div>
 
 ---
 
@@ -341,21 +658,31 @@ wf_spec_final &lt;- wf_spec %&gt;%
 
 
 ```r
-final_fit &lt;- last_fit(wf_spec_final, split)
+final_fit &lt;- last_fit(object = wf_spec_final, 
+                      split = complaints_split, 
+                      metrics = metric_set(accuracy))
+```
+
+```
+## ! Resample1: recipe: max_features was set to '500', but only 15 was availabl...
+```
+
+```
+## ! Resample1: model: Solution may not be optimal: try training again using mi...
 ```
 
 
 ```r
 final_fit %&gt;%
   collect_predictions() %&gt;%
-  conf_mat(language, .pred_class)
+  conf_mat(product, .pred_class)
 ```
 
 ```
 ##           Truth
-## Prediction python  r
-##     python     46  1
-##     r           1 59
+## Prediction Credit Other
+##     Credit     43    23
+##     Other      28    52
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

@@ -17,6 +17,24 @@ output:
       titleSlideClass: [center, middle]
 ---
 
+```{r, eval = FALSE, echo = FALSE}
+The general outline of the talk is:
+
+Introduction
+Motivation
+talk about data
+Start modeling
+side tangent - talk about one of chapter 1-5
+more modeling
+side tangent - talk about one of chapter 1-5
+finish modeling
+evaluate
+
+We will be doing 1 model workflow from start to finish, with sidestepping to talk about chapter 1-5 things
+
+```
+
+
 ```{r include=FALSE}
 library(knitr)
 hook_output <- knit_hooks$get("output")
@@ -63,6 +81,8 @@ opts_chunk$set(
 library(sass)
 sass(sass_file("theme.sass"), output = "theme.css")
 set.seed(1234)
+library(ggplot2)
+theme_set(theme_minimal())
 ```
 
 class: center, middle
@@ -88,11 +108,14 @@ class: center, middle
 
 --
 
-* We will walk through our case study using slides and live coding
+- We will walk through our case study using slides and live coding
+
+
 
 --
 
-* After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself `r emo::ji("muscle")`
+
+- After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself `r emo::ji("muscle")`
 
 ---
 
@@ -103,7 +126,7 @@ Let's look at complaints submitted to the [United States Consumer Financial Prot
 ```{r R.options = list(width = 80), message=FALSE}
 library(tidyverse)
 
-complaints <- read_csv("data/complaints.csv.gz") %>% sample_frac(0.1)
+complaints <- read_csv("data/complaints.csv.gz") %>% sample_frac(0.005)
 names(complaints)
 ```
 
@@ -119,53 +142,132 @@ complaints %>%
 
 ---
 
-# Packages
+# Modeling Packages
 
 ```{r}
 library(tidymodels)
 library(textrecipes)
 ```
 
+- [tidymodels](https://www.tidymodels.org/) is a collection of packages for modeling and machine learning using tidyverse principles.
+- [textrecipes](https://textrecipes.tidymodels.org/) extends the recipes package to be able to handle text preprocessing.
+
 ---
 
-# data
+# Modeling workflow
 
-```{r, message=FALSE}
-talks <- readr::read_csv("data/talks.csv")
-talks
+![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+
+---
+
+# Class imbalance
+
+```{r, echo=FALSE}
+complaints %>%
+  mutate(product = fct_rev(fct_infreq(factor(product)))) %>%
+  ggplot(aes(y = product)) +
+  geom_bar()
 ```
+
+---
+
+class: inverse
+
+## We will simplify the task by turning it into a binary classification task
 
 ---
 
 # Splitting
 
 ```{r}
-split <- initial_split(talks, strata = language)
+set.seed(1234)
 
-train_data <- training(split)
-test_data <- testing(split)
+credit <- "Credit reporting, credit repair services, or other personal consumer reports"
+
+complaints2class <- complaints %>%
+  mutate(product = factor(if_else(
+    condition = product == credit, 
+    true = "Credit", 
+    false = "Other"))) %>%
+  rename(text = consumer_complaint_narrative)
+
+complaints_split <- initial_split(complaints2class, strata = product)
+
+complaints_train <- training(complaints_split)
+complaints_test <- testing(complaints_split)
 ```
+
+---
+
+# What variables can we use
+
+```{r}
+names(complaints_train)
+```
+
+---
+
+# Variable selecition checklist:
+
+- Are we ethically allowed to use this variable?
+- Are we legally allowed to use this variable?
+- Would this variable be available to us at prediction time?
+- Would this variable add more signal then noise?
+- Would this variable to explainable?
+
+---
+
+TODO: 
+
+talk about which variables fall into which catagory
+
+zipcode would be clearly in catagory 1.
+
+We end up using: date_received + tags + consumer_complaint_narrative
 
 ---
 
 # Preprocessing specification
 
 ```{r}
-rec_spec <- recipe(language ~ ., data = train_data) %>%
-  step_tokenize(description) %>%
-  step_tokenfilter(description) %>%
-  step_stopwords(description) %>%
-  step_tfidf(description) %>%
-  step_scale(year)
+complaints_rec <-
+  recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %>%
+  step_rm(date_received) %>%
+  step_dummy(has_role("dates")) %>%
+  step_unknown(tags) %>%
+  step_dummy(tags) %>%
+  step_tokenize(text) %>%
+  step_stopwords(text) %>%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %>%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 250) %>%
+  step_tfidf(text)
 ```
 
 ---
 
+TODO:
+
+talk about preprocessing step by step
+
+
+---
+
+# Let's talk about stopwords!
+
+---
+
+
 # Model specification
 
 ```{r}
-lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
-  set_engine("glmnet")
+svm_spec <- svm_rbf() %>%
+  set_mode("classification") %>%
+  set_engine("liquidSVM")
+
+svm_spec
 ```
 
 ---
@@ -174,8 +276,8 @@ lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
 
 ```{r}
 wf_spec <- workflow() %>%
-  add_recipe(rec_spec) %>%
-  add_model(lasso_spec)
+  add_recipe(complaints_rec) %>%
+  add_model(svm_spec)
 ```
 
 ---
@@ -183,21 +285,39 @@ wf_spec <- workflow() %>%
 # Setting up a tuning grid
 
 ```{r}
-param_grid <- grid_regular(penalty(), levels = 50)
+param_grid <- grid_regular(max_tokens(range = c(500, 2000)),
+  levels = 5
+)
+
+param_grid
 ```
 
+---
+
+
 ```{r}
-data_boot <- bootstraps(train_data, times = 10)
+complaints_folds <- vfold_cv(complaints_train, v = 2)
+
+complaints_folds
 ```
+
+---
 
 ```{r}
 set.seed(42)
 lasso_grid <- tune_grid(
   wf_spec,
-  resamples = data_boot,
-  grid = param_grid
+  resamples = complaints_folds,
+  metrics = metric_set(accuracy, sensitivity, specificity),
+  grid = param_grid,control = control_grid(verbose = TRUE)
 ) 
 ```
+
+---
+
+# lets talk about tokenization
+
+(this feels like an okay segway since using n-grams)
 
 ---
 
@@ -213,7 +333,7 @@ autoplot(lasso_grid)
 
 ```{r}
 lasso_grid %>%
-  show_best("roc_auc")
+  show_best("accuracy")
 ```
 
 ---
@@ -222,67 +342,7 @@ lasso_grid %>%
 
 ```{r}
 wf_spec_final <- wf_spec %>%
-  finalize_workflow(parameters = select_best(lasso_grid, "roc_auc"))
-```
-
----
-
-# Variable importance - how is our model thinking
-
-```{r, echo=FALSE}
-wi_data <- wf_spec_final %>%
-  fit(train_data) %>%
-  pull_workflow_fit() %>%
-  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %>%
-  mutate(Variable = stringr::str_remove_all(Variable, "tfidf_description_"))
-
-wi_data %>%
-  mutate(
-    Importance = abs(Importance)
-    ) %>%
-  filter(Importance != 0) %>%
-  group_by(Sign) %>%
-  top_n(20, Importance) %>%
-  ungroup() %>%
-  ggplot(aes(
-    x = Importance,
-    y = forcats::fct_reorder(Variable, Importance),
-    fill = Sign
-  )) +
-  geom_col(show.legend = FALSE) +
-  scale_x_continuous(expand = c(0, 0)) +
-  facet_wrap(~Sign, scales = "free") +
-  labs(
-    y = NULL,
-    title = "Variable importance for predicting year of Supreme Court opinions",
-    subtitle = "These features are the most importance in predicting the year of an opinion"
-  )
-```
-
----
-
-# looking at one description
-
-<span, style = 'color:green;'>Python</span> <span, style = 'color:black;'>And</span> <span, style = 'color:blue;'>R</span>
-
-```{r, echo=FALSE}
-highlighter <- function(x, sign) {
-  if(is.na(sign)) {
-    htmltools::span(x)
-  } else if (sign == "NEG") {
-    htmltools::span(x, style = 'color:green;')
-  } else if (sign == "POS") {
-    htmltools::span(x, style = 'color:blue;')
-  }
-}
-
-train_data %>%
-  slice(3) %>%
-  tidytext::unnest_tokens(words, description) %>%
-  left_join(wi_data, by = c("words" = "Variable")) %>%
-  mutate(words = map2(words, Sign, highlighter)) %>%
-  pull(words) %>%
-  htmltools::div()
+  finalize_workflow(parameters = select_best(lasso_grid, "accuracy"))
 ```
 
 ---
@@ -290,11 +350,13 @@ train_data %>%
 # Final fit
 
 ```{r}
-final_fit <- last_fit(wf_spec_final, split)
+final_fit <- last_fit(object = wf_spec_final, 
+                      split = complaints_split, 
+                      metrics = metric_set(accuracy))
 ```
 
 ```{r}
 final_fit %>%
   collect_predictions() %>%
-  conf_mat(language, .pred_class)
+  conf_mat(product, .pred_class)
 ```
