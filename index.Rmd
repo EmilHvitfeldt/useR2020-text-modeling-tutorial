@@ -242,7 +242,7 @@ complaints_rec <-
   step_tokenize(text) %>%
   step_stopwords(text) %>%
   step_ngram(text, num_tokens = 3, min_num_tokens = 1) %>%
-  step_tokenfilter(text, max_tokens = tune(), min_times = 250) %>%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %>%
   step_tfidf(text)
 ```
 
@@ -263,11 +263,12 @@ talk about preprocessing step by step
 # Model specification
 
 ```{r}
-svm_spec <- svm_rbf() %>%
+lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
   set_mode("classification") %>%
-  set_engine("liquidSVM")
+  set_engine("glmnet")
 
-svm_spec
+
+lasso_spec
 ```
 
 ---
@@ -277,7 +278,7 @@ svm_spec
 ```{r}
 wf_spec <- workflow() %>%
   add_recipe(complaints_rec) %>%
-  add_model(svm_spec)
+  add_model(lasso_spec)
 ```
 
 ---
@@ -285,9 +286,12 @@ wf_spec <- workflow() %>%
 # Setting up a tuning grid
 
 ```{r}
-param_grid <- grid_regular(max_tokens(range = c(500, 2000)),
-  levels = 5
+param_grid <- grid_regular(
+  penalty(range = c(-4, 0)),
+  max_tokens(range = c(500, 2000)),
+  levels = 6
 )
+
 
 param_grid
 ```
@@ -308,8 +312,7 @@ set.seed(42)
 lasso_grid <- tune_grid(
   wf_spec,
   resamples = complaints_folds,
-  metrics = metric_set(accuracy, sensitivity, specificity),
-  grid = param_grid,control = control_grid(verbose = TRUE)
+  grid = param_grid, control = control_grid(verbose = TRUE)
 ) 
 ```
 

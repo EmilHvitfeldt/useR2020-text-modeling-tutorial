@@ -132,7 +132,7 @@ library(textrecipes)
 
 # Class imbalance
 
-&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-83-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -222,7 +222,7 @@ complaints_rec &lt;-
   step_tokenize(text) %&gt;%
   step_stopwords(text) %&gt;%
   step_ngram(text, num_tokens = 3, min_num_tokens = 1) %&gt;%
-  step_tokenfilter(text, max_tokens = tune(), min_times = 250) %&gt;%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %&gt;%
   step_tfidf(text)
 ```
 
@@ -244,17 +244,22 @@ talk about preprocessing step by step
 
 
 ```r
-svm_spec &lt;- svm_rbf() %&gt;%
+lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
   set_mode("classification") %&gt;%
-  set_engine("liquidSVM")
+  set_engine("glmnet")
 
-svm_spec
+
+lasso_spec
 ```
 
 ```
-## Radial Basis Function Support Vector Machine Specification (classification)
+## Logistic Regression Model Specification (classification)
 ## 
-## Computational engine: liquidSVM
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet
 ```
 
 ---
@@ -265,7 +270,7 @@ svm_spec
 ```r
 wf_spec &lt;- workflow() %&gt;%
   add_recipe(complaints_rec) %&gt;%
-  add_model(svm_spec)
+  add_model(lasso_spec)
 ```
 
 ---
@@ -274,22 +279,31 @@ wf_spec &lt;- workflow() %&gt;%
 
 
 ```r
-param_grid &lt;- grid_regular(max_tokens(range = c(500, 2000)),
-  levels = 5
+param_grid &lt;- grid_regular(
+  penalty(range = c(-4, 0)),
+  max_tokens(range = c(500, 2000)),
+  levels = 6
 )
+
 
 param_grid
 ```
 
 ```
-## # A tibble: 5 x 1
-##   max_tokens
-##        &lt;int&gt;
-## 1        500
-## 2        875
-## 3       1250
-## 4       1625
-## 5       2000
+## # A tibble: 36 x 2
+##     penalty max_tokens
+##       &lt;dbl&gt;      &lt;int&gt;
+##  1 0.0001          500
+##  2 0.000631        500
+##  3 0.00398         500
+##  4 0.0251          500
+##  5 0.158           500
+##  6 1               500
+##  7 0.0001          800
+##  8 0.000631        800
+##  9 0.00398         800
+## 10 0.0251          800
+## # … with 26 more rows
 ```
 
 ---
@@ -319,289 +333,272 @@ set.seed(42)
 lasso_grid &lt;- tune_grid(
   wf_spec,
   resamples = complaints_folds,
-  metrics = metric_set(accuracy, sensitivity, specificity),
-  grid = param_grid,control = control_grid(verbose = TRUE)
+  grid = param_grid, control = control_grid(verbose = TRUE)
 ) 
 ```
 
 ```
-## i Fold1: recipe 1/5
+## i Fold1: recipe 1/6
 ```
 
 ```
-## ! Fold1: recipe 1/5: max_features was set to '500', but only 9 was avail...
+## ✓ Fold1: recipe 1/6
 ```
 
 ```
-## ✓ Fold1: recipe 1/5
+## i Fold1: recipe 1/6, model 1/1
 ```
 
 ```
-## i Fold1: recipe 1/5, model 1/1
+## ✓ Fold1: recipe 1/6, model 1/1
 ```
 
 ```
-## ! Fold1: recipe 1/5, model 1/1: Solution may not be optimal: try trainin...
+## i Fold1: recipe 1/6, model 1/1 (predictions)
 ```
 
 ```
-## ✓ Fold1: recipe 1/5, model 1/1
+## i Fold1: recipe 2/6
 ```
 
 ```
-## i Fold1: recipe 1/5, model 1/1 (predictions)
+## ✓ Fold1: recipe 2/6
 ```
 
 ```
-## i Fold1: recipe 2/5
+## i Fold1: recipe 2/6, model 1/1
 ```
 
 ```
-## ! Fold1: recipe 2/5: max_features was set to '875', but only 9 was avail...
+## ✓ Fold1: recipe 2/6, model 1/1
 ```
 
 ```
-## ✓ Fold1: recipe 2/5
+## i Fold1: recipe 2/6, model 1/1 (predictions)
 ```
 
 ```
-## i Fold1: recipe 2/5, model 1/1
+## i Fold1: recipe 3/6
 ```
 
 ```
-## ! Fold1: recipe 2/5, model 1/1: Solution may not be optimal: try trainin...
+## ✓ Fold1: recipe 3/6
 ```
 
 ```
-## ✓ Fold1: recipe 2/5, model 1/1
+## i Fold1: recipe 3/6, model 1/1
 ```
 
 ```
-## i Fold1: recipe 2/5, model 1/1 (predictions)
+## ✓ Fold1: recipe 3/6, model 1/1
 ```
 
 ```
-## i Fold1: recipe 3/5
+## i Fold1: recipe 3/6, model 1/1 (predictions)
 ```
 
 ```
-## ! Fold1: recipe 3/5: max_features was set to '1250', but only 9 was avai...
+## i Fold1: recipe 4/6
 ```
 
 ```
-## ✓ Fold1: recipe 3/5
+## ! Fold1: recipe 4/6: max_features was set to '1400', but only 1341 was available and selected.
 ```
 
 ```
-## i Fold1: recipe 3/5, model 1/1
+## ✓ Fold1: recipe 4/6
 ```
 
 ```
-## ! Fold1: recipe 3/5, model 1/1: Solution may not be optimal: try trainin...
+## i Fold1: recipe 4/6, model 1/1
 ```
 
 ```
-## ✓ Fold1: recipe 3/5, model 1/1
+## ✓ Fold1: recipe 4/6, model 1/1
 ```
 
 ```
-## i Fold1: recipe 3/5, model 1/1 (predictions)
+## i Fold1: recipe 4/6, model 1/1 (predictions)
 ```
 
 ```
-## i Fold1: recipe 4/5
+## i Fold1: recipe 5/6
 ```
 
 ```
-## ! Fold1: recipe 4/5: max_features was set to '1625', but only 9 was avai...
+## ! Fold1: recipe 5/6: max_features was set to '1700', but only 1341 was available and selected.
 ```
 
 ```
-## ✓ Fold1: recipe 4/5
+## ✓ Fold1: recipe 5/6
 ```
 
 ```
-## i Fold1: recipe 4/5, model 1/1
+## i Fold1: recipe 5/6, model 1/1
 ```
 
 ```
-## ! Fold1: recipe 4/5, model 1/1: Solution may not be optimal: try trainin...
+## ✓ Fold1: recipe 5/6, model 1/1
 ```
 
 ```
-## ✓ Fold1: recipe 4/5, model 1/1
+## i Fold1: recipe 5/6, model 1/1 (predictions)
 ```
 
 ```
-## i Fold1: recipe 4/5, model 1/1 (predictions)
+## i Fold1: recipe 6/6
 ```
 
 ```
-## i Fold1: recipe 5/5
+## ! Fold1: recipe 6/6: max_features was set to '2000', but only 1341 was available and selected.
 ```
 
 ```
-## ! Fold1: recipe 5/5: max_features was set to '2000', but only 9 was avai...
+## ✓ Fold1: recipe 6/6
 ```
 
 ```
-## ✓ Fold1: recipe 5/5
+## i Fold1: recipe 6/6, model 1/1
 ```
 
 ```
-## i Fold1: recipe 5/5, model 1/1
+## ✓ Fold1: recipe 6/6, model 1/1
 ```
 
 ```
-## ! Fold1: recipe 5/5, model 1/1: Solution may not be optimal: try trainin...
+## i Fold1: recipe 6/6, model 1/1 (predictions)
 ```
 
 ```
-## ✓ Fold1: recipe 5/5, model 1/1
+## i Fold2: recipe 1/6
 ```
 
 ```
-## i Fold1: recipe 5/5, model 1/1 (predictions)
+## ✓ Fold2: recipe 1/6
 ```
 
 ```
-## i Fold2: recipe 1/5
+## i Fold2: recipe 1/6, model 1/1
 ```
 
 ```
-## ! Fold2: recipe 1/5: max_features was set to '500', but only 7 was avail...
+## ✓ Fold2: recipe 1/6, model 1/1
 ```
 
 ```
-## ✓ Fold2: recipe 1/5
+## i Fold2: recipe 1/6, model 1/1 (predictions)
 ```
 
 ```
-## i Fold2: recipe 1/5, model 1/1
+## i Fold2: recipe 2/6
 ```
 
 ```
-## ! Fold2: recipe 1/5, model 1/1: Solution may not be optimal: try trainin...
+## ✓ Fold2: recipe 2/6
 ```
 
 ```
-## ✓ Fold2: recipe 1/5, model 1/1
+## i Fold2: recipe 2/6, model 1/1
 ```
 
 ```
-## i Fold2: recipe 1/5, model 1/1 (predictions)
+## ✓ Fold2: recipe 2/6, model 1/1
 ```
 
 ```
-## i Fold2: recipe 2/5
+## i Fold2: recipe 2/6, model 1/1 (predictions)
 ```
 
 ```
-## ! Fold2: recipe 2/5: max_features was set to '875', but only 7 was avail...
+## i Fold2: recipe 3/6
 ```
 
 ```
-## ✓ Fold2: recipe 2/5
+## ✓ Fold2: recipe 3/6
 ```
 
 ```
-## i Fold2: recipe 2/5, model 1/1
+## i Fold2: recipe 3/6, model 1/1
 ```
 
 ```
-## ! Fold2: recipe 2/5, model 1/1: Solution may not be optimal: try trainin...
+## ✓ Fold2: recipe 3/6, model 1/1
 ```
 
 ```
-## ✓ Fold2: recipe 2/5, model 1/1
+## i Fold2: recipe 3/6, model 1/1 (predictions)
 ```
 
 ```
-## i Fold2: recipe 2/5, model 1/1 (predictions)
+## i Fold2: recipe 4/6
 ```
 
 ```
-## i Fold2: recipe 3/5
+## ! Fold2: recipe 4/6: max_features was set to '1400', but only 1161 was available and selected.
 ```
 
 ```
-## ! Fold2: recipe 3/5: max_features was set to '1250', but only 7 was avai...
+## ✓ Fold2: recipe 4/6
 ```
 
 ```
-## ✓ Fold2: recipe 3/5
+## i Fold2: recipe 4/6, model 1/1
 ```
 
 ```
-## i Fold2: recipe 3/5, model 1/1
+## ✓ Fold2: recipe 4/6, model 1/1
 ```
 
 ```
-## ! Fold2: recipe 3/5, model 1/1: Solution may not be optimal: try trainin...
+## i Fold2: recipe 4/6, model 1/1 (predictions)
 ```
 
 ```
-## ✓ Fold2: recipe 3/5, model 1/1
+## i Fold2: recipe 5/6
 ```
 
 ```
-## i Fold2: recipe 3/5, model 1/1 (predictions)
+## ! Fold2: recipe 5/6: max_features was set to '1700', but only 1161 was available and selected.
 ```
 
 ```
-## i Fold2: recipe 4/5
+## ✓ Fold2: recipe 5/6
 ```
 
 ```
-## ! Fold2: recipe 4/5: max_features was set to '1625', but only 7 was avai...
+## i Fold2: recipe 5/6, model 1/1
 ```
 
 ```
-## ✓ Fold2: recipe 4/5
+## ✓ Fold2: recipe 5/6, model 1/1
 ```
 
 ```
-## i Fold2: recipe 4/5, model 1/1
+## i Fold2: recipe 5/6, model 1/1 (predictions)
 ```
 
 ```
-## ! Fold2: recipe 4/5, model 1/1: Solution may not be optimal: try trainin...
+## i Fold2: recipe 6/6
 ```
 
 ```
-## ✓ Fold2: recipe 4/5, model 1/1
+## ! Fold2: recipe 6/6: max_features was set to '2000', but only 1161 was available and selected.
 ```
 
 ```
-## i Fold2: recipe 4/5, model 1/1 (predictions)
+## ✓ Fold2: recipe 6/6
 ```
 
 ```
-## i Fold2: recipe 5/5
+## i Fold2: recipe 6/6, model 1/1
 ```
 
 ```
-## ! Fold2: recipe 5/5: max_features was set to '2000', but only 7 was avai...
+## ✓ Fold2: recipe 6/6, model 1/1
 ```
 
 ```
-## ✓ Fold2: recipe 5/5
-```
-
-```
-## i Fold2: recipe 5/5, model 1/1
-```
-
-```
-## ! Fold2: recipe 5/5, model 1/1: Solution may not be optimal: try trainin...
-```
-
-```
-## ✓ Fold2: recipe 5/5, model 1/1
-```
-
-```
-## i Fold2: recipe 5/5, model 1/1 (predictions)
+## i Fold2: recipe 6/6, model 1/1 (predictions)
 ```
 
 ---
@@ -619,7 +616,7 @@ lasso_grid &lt;- tune_grid(
 autoplot(lasso_grid)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-92-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -632,14 +629,14 @@ lasso_grid %&gt;%
 ```
 
 ```
-## # A tibble: 5 x 7
-##   max_tokens .metric  .estimator  mean     n std_err .config
-##        &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
-## 1        500 accuracy binary     0.609     2 0.00455 Recipe1
-## 2        875 accuracy binary     0.609     2 0.00455 Recipe2
-## 3       1250 accuracy binary     0.609     2 0.00455 Recipe3
-## 4       1625 accuracy binary     0.609     2 0.00455 Recipe4
-## 5       2000 accuracy binary     0.609     2 0.00455 Recipe5
+## # A tibble: 5 x 8
+##    penalty max_tokens .metric  .estimator  mean     n std_err .config       
+##      &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;         
+## 1 0.00398        1400 accuracy binary     0.795     2  0.0136 Recipe4_Model3
+## 2 0.00398        1700 accuracy binary     0.795     2  0.0136 Recipe5_Model3
+## 3 0.00398        2000 accuracy binary     0.795     2  0.0136 Recipe6_Model3
+## 4 0.0001         1400 accuracy binary     0.793     2  0.0114 Recipe4_Model1
+## 5 0.000631       1400 accuracy binary     0.793     2  0.0114 Recipe4_Model2
 ```
 
 ---
@@ -663,14 +660,6 @@ final_fit &lt;- last_fit(object = wf_spec_final,
                       metrics = metric_set(accuracy))
 ```
 
-```
-## ! Resample1: recipe: max_features was set to '500', but only 15 was availabl...
-```
-
-```
-## ! Resample1: model: Solution may not be optimal: try training again using mi...
-```
-
 
 ```r
 final_fit %&gt;%
@@ -681,8 +670,8 @@ final_fit %&gt;%
 ```
 ##           Truth
 ## Prediction Credit Other
-##     Credit     43    23
-##     Other      28    52
+##     Credit     57    12
+##     Other      14    63
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
