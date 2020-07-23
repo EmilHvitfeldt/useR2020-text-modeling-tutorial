@@ -230,7 +230,7 @@ complaints2class <- complaints %>%
 
 # Data splitting
 
-Split our data into **training** and **testing**
+The testing set is a precious resource which can be used only once
 
 ```{r all-split, echo = FALSE, fig.width=10}
 set.seed(16)
@@ -264,8 +264,6 @@ all_split
 ---
 
 # Data splitting
-
-The testing set is a precious resource which can be used only once
 
 ```{r}
 set.seed(1234)
@@ -362,6 +360,10 @@ complaints_rec <-
   step_tokenfilter(text, max_tokens = tune(), min_times = 5) %>%
   step_tfidf(text)
 ```
+
+--
+
+Also, what does `tune()` mean here? `r emo::ji("thinking")`
 
 ---
 
@@ -575,7 +577,8 @@ Learn more about word embeddings:
 
 ---
 
-![](https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/parsnip.png)
+background-image: url(https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/parsnip.png)
+background-size: cover
 
 .footnote[
 Art by [Allison Horst](https://github.com/allisonhorst/stats-illustrations)
@@ -663,33 +666,30 @@ lasso_spec
 
 --
 
-What does `tune()` mean?
+It's `tune()` again! `r emo::ji("worried")`
 
 ---
 
-class: inverse, right, middle
+## Parameters and... hyperparameters?
 
-# Now we have **features** plus a **model**
+- Some model parameters can be learned from data during fitting/training
 
----
 
-# Create a workflow
+--
 
-```{r}
-wf_spec <- workflow() %>%
-  add_recipe(complaints_rec) %>%
-  add_model(lasso_spec)
-```
 
----
+- Some CANNOT `r emo::ji("scream")`
 
-class: inverse, right, middle
 
-# What is a `workflow()`?
+--
+
+
+- These are **hyperparameters** of a model, and we estimate them by training lots of models with different hyperparameters and comparing them
+
 
 ---
 
-# A grid of possible parameters
+# A grid of possible hyperparameters
 
 ```{r}
 param_grid <- grid_regular(
@@ -702,7 +702,7 @@ param_grid <- grid_regular(
 
 ---
 
-# A grid of possible parameters
+# A grid of possible hyperparameters
 
 ```{r echo=FALSE}
 param_grid
@@ -810,6 +810,28 @@ Art by [Alison Hill](https://alison.rbind.io/)
 class: inverse, right, middle
 
 # Spend your data wisely to create **simulated** validation sets
+
+---
+
+class: inverse, right, middle
+
+# Now we have **resamples**, **features**, plus a **model**
+
+---
+
+# Create a workflow
+
+```{r}
+wf_spec <- workflow() %>%
+  add_recipe(complaints_rec) %>%
+  add_model(lasso_spec)
+```
+
+---
+
+class: inverse, right, middle
+
+# What is a `workflow()`?
 
 ---
 
