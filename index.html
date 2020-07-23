@@ -958,7 +958,7 @@ class: inverse, right, middle
 
 ```r
 set.seed(42)
-lasso_grid &lt;- tune_grid(
+lasso_rs &lt;- tune_grid(
   complaints_wf,
   resamples = complaints_folds,
   grid = param_grid, 
@@ -1238,7 +1238,7 @@ See [Chapter 2](https://smltar.com/tokenization.html) for more!
 
 
 ```r
-collect_metrics(lasso_grid)
+collect_metrics(lasso_rs)
 ```
 
 ```
@@ -1262,7 +1262,7 @@ collect_metrics(lasso_grid)
 
 
 ```r
-autoplot(lasso_grid)
+autoplot(lasso_rs)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-48-1.png" width="700px" style="display: block; margin: auto;" /&gt;
@@ -1273,7 +1273,7 @@ autoplot(lasso_grid)
 
 
 ```r
-lasso_grid %&gt;%
+lasso_rs %&gt;%
   show_best("roc_auc")
 ```
 
@@ -1294,7 +1294,7 @@ lasso_grid %&gt;%
 
 
 ```r
-best_roc_auc &lt;- select_best(lasso_grid, "roc_auc")
+best_roc_auc &lt;- select_best(lasso_rs, "roc_auc")
 
 best_roc_auc
 ```
@@ -1312,7 +1312,7 @@ best_roc_auc
 
 
 ```r
-collect_predictions(lasso_grid, 
+collect_predictions(lasso_rs, 
                     parameters = best_roc_auc)
 ```
 
@@ -1339,8 +1339,8 @@ collect_predictions(lasso_grid,
 
 
 ```r
-collect_predictions(lasso_grid, 
-                    parameters = select_best(lasso_grid, "roc_auc")) %&gt;%
+collect_predictions(lasso_rs, 
+                    parameters = select_best(lasso_rs, "roc_auc")) %&gt;%
   group_by(id) %&gt;%
   roc_curve(truth = product, .pred_Credit) %&gt;%
   autoplot()
@@ -1381,7 +1381,7 @@ class: inverse, right, middle
 wf_spec_final %&gt;%
   fit(complaints_train) %&gt;%
   pull_workflow_fit() %&gt;%
-  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %&gt;%
+  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %&gt;%
   filter(!str_detect(Variable, "tfidf")) %&gt;%
   filter(Importance != 0)
 ```
@@ -1405,7 +1405,7 @@ wf_spec_final %&gt;%
 wi_data &lt;- wf_spec_final %&gt;%
   fit(complaints_train) %&gt;%
   pull_workflow_fit() %&gt;%
-  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %&gt;%
+  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %&gt;%
   mutate(Variable = str_remove_all(Variable, "tfidf_text_")) %&gt;%
   filter(Importance != 0)
 ```

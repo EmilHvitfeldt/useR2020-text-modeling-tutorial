@@ -862,7 +862,7 @@ class: inverse, right, middle
 
 ```{r}
 set.seed(42)
-lasso_grid <- tune_grid(
+lasso_rs <- tune_grid(
   complaints_wf,
   resamples = complaints_folds,
   grid = param_grid, 
@@ -875,7 +875,7 @@ lasso_grid <- tune_grid(
 ## Time to tune! `r emo::ji("zap")`
 
 ```{r echo=FALSE}
-lasso_grid
+lasso_rs
 ```
 
 ---
@@ -1065,13 +1065,13 @@ See [Chapter 2](https://smltar.com/tokenization.html) for more!
 
 
 ```{r}
-collect_metrics(lasso_grid)
+collect_metrics(lasso_rs)
 ```
 
 ---
 
 ```{r}
-autoplot(lasso_grid)
+autoplot(lasso_rs)
 ```
 
 ---
@@ -1079,7 +1079,7 @@ autoplot(lasso_grid)
 # Look at the tuning results `r emo::ji("eyes")`
 
 ```{r}
-lasso_grid %>%
+lasso_rs %>%
   show_best("roc_auc")
 ```
 
@@ -1088,7 +1088,7 @@ lasso_grid %>%
 # The **best** `r emo::ji("first")` hyperparameters 
 
 ```{r}
-best_roc_auc <- select_best(lasso_grid, "roc_auc")
+best_roc_auc <- select_best(lasso_rs, "roc_auc")
 
 best_roc_auc
 ```
@@ -1098,7 +1098,7 @@ best_roc_auc
 # Evaluate the best model `r emo::ji("ruler")`
 
 ```{r}
-collect_predictions(lasso_grid, 
+collect_predictions(lasso_rs, 
                     parameters = best_roc_auc)
 ```
 
@@ -1107,8 +1107,8 @@ collect_predictions(lasso_grid,
 # Evaluate the best model `r emo::ji("ruler")`
 
 ```{r, eval=FALSE}
-collect_predictions(lasso_grid, 
-                    parameters = select_best(lasso_grid, "roc_auc")) %>%
+collect_predictions(lasso_rs, 
+                    parameters = select_best(lasso_rs, "roc_auc")) %>%
   group_by(id) %>%
   roc_curve(truth = product, .pred_Credit) %>%
   autoplot()
@@ -1119,8 +1119,8 @@ collect_predictions(lasso_grid,
 # Evaluate the best model `r emo::ji("ruler")`
 
 ```{r, echo=FALSE}
-collect_predictions(lasso_grid, 
-                    parameters = select_best(lasso_grid, "roc_auc")) %>%
+collect_predictions(lasso_rs, 
+                    parameters = select_best(lasso_rs, "roc_auc")) %>%
   group_by(id) %>%
   roc_curve(truth = product, .pred_Credit) %>%
   autoplot() +
@@ -1158,7 +1158,7 @@ class: inverse, right, middle
 wf_spec_final %>%
   fit(complaints_train) %>%
   pull_workflow_fit() %>%
-  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %>%
+  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %>%
   filter(!str_detect(Variable, "tfidf")) %>%
   filter(Importance != 0)
 ```
@@ -1171,7 +1171,7 @@ wf_spec_final %>%
 wi_data <- wf_spec_final %>%
   fit(complaints_train) %>%
   pull_workflow_fit() %>%
-  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %>%
+  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %>%
   mutate(Variable = str_remove_all(Variable, "tfidf_text_")) %>%
   filter(Importance != 0)
 ```
