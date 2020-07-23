@@ -193,7 +193,7 @@ complaints %>%
 
 # Modeling Packages
 
-```{r}
+```{r, message=FALSE}
 library(tidymodels)
 library(textrecipes)
 ```
