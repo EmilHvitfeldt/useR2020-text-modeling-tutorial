@@ -104,6 +104,7 @@ class: center, middle
 [`r icon::fa("twitter")` @juliasilge](https://twitter.com/juliasilge)  
 [`r icon::fa("link")` juliasilge.com](https://juliasilge.com)
 ]
+
 ---
 
 # Plan for today
@@ -208,7 +209,7 @@ library(textrecipes)
 
 ---
 
-# Modeling workflow
+# smltar.com
 
 ```{r echo=FALSE, out.width="100%"}
 knitr::include_url("https://smltar.com/")
@@ -1137,10 +1138,14 @@ collect_predictions(lasso_grid,
 
 # update workflow
 
+We We can update our workflow with the best performing hyperparameters
+
 ```{r}
 wf_spec_final <- wf_spec %>%
   finalize_workflow(parameters = best_roc_auc)
 ```
+
+This workflow is ready to go! It can now be applied to new data.
 
 ---
 
@@ -1306,15 +1311,55 @@ complaints_train %>%
 
 # Final fit
 
+We will now use `last_fit()` to fit our model one last time on our training data and evaluate it on our testing data.
+
 ```{r}
-final_fit <- last_fit(object = wf_spec_final, 
-                      split = complaints_split, 
-                      metrics = metric_set(accuracy))
+final_fit <- last_fit(
+  wf_spec_final, 
+  complaints_split
+)
 ```
+
+---
+
+class: inverse, right, middle
+
+# Notice that this is the first and only time we have used our testing data
+
+---
+
+# Test data evaluation
+
+```{r}
+final_fit %>%
+  collect_metrics()
+```
+
+---
 
 ```{r}
 final_fit %>%
   collect_predictions() %>%
-  conf_mat(product, .pred_class)
+  roc_curve(truth = product, .pred_Credit) %>%
+  autoplot()
 ```
 
+---
+
+.center[
+# Thanks!
+]
+
+.pull-left[
+<img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/>  
+[`r icon::fa("github")` @EmilHvitfeldt](https://github.com/EmilHvitfeldt)  
+[`r icon::fa("twitter")` @Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)  
+[`r icon::fa("link")` hvitfeldt.me](https://www.hvitfeldt.me/)
+]
+
+.pull-right[
+<img style="border-radius: 50%;" src="https://github.com/juliasilge.png" width="150px"/>  
+[`r icon::fa("github")` @juliasilge](https://github.com/juliasilge)  
+[`r icon::fa("twitter")` @juliasilge](https://twitter.com/juliasilge)  
+[`r icon::fa("link")` juliasilge.com](https://juliasilge.com)
+]
