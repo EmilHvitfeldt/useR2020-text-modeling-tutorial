@@ -23,6 +23,6 @@ Intermediate familiarity with R, RStudio, basics of regression and classificatio
 There are two main resources in this repo:
 
 - Slides, which you can [see rendered here](UPDATELINK) and the [source for here](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial/blob/master/index.Rmd)
-- An [R Markdown file to work through](UPDATELINK)
+- An [R Markdown file to work through](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial/blob/master/text_modeling.Rmd)
 
 If you get stuck, you can [post a question as an issue on this repo](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial/issues) or [post on RStudio Community](https://rstd.io/tidymodels-community).
