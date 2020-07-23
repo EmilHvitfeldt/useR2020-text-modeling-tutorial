@@ -168,6 +168,28 @@ complaints %>%
 
 ---
 
+# Text as data
+
+
+--
+
+- Text like this can be used for **supervised** or **predictive** modeling
+
+
+--
+
+
+- We can build both regression and classification models with text data
+
+
+--
+
+
+- We can use the ways language exhibits organization to create features for modeling
+
+
+---
+
 # Modeling Packages
 
 ```{r}
