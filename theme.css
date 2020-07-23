@@ -138,3 +138,32 @@ li::before {
   visibility: hidden;
 }
 
+/* Inverse slides */
+.inverse h1 {
+  color: #d2eaca;
+}
+
+.inverse h1 strong {
+  color: #3bb114;
+}
+
+.inverse h2 {
+  color: #d2eaca;
+}
+
+.inverse h2 strong {
+  color: #3bb114;
+}
+
+.inverse h3 {
+  color: #d2eaca;
+}
+
+.inverse h3 strong {
+  color: #3bb114;
+}
+
+.inverse .remark-inline-code {
+  background: transparent;
+}
+

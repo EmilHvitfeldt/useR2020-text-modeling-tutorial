@@ -31,6 +31,7 @@ del
 .footnote
   bottom: 0em
 
+
 /* General slides */
 
 .remark-code
@@ -127,3 +128,26 @@ li::before
 
 .hidden
   visibility: hidden
+
+/* Inverse slides */
+
+$inverse-color: #d2eaca
+$inverse-color-bold: #3bb114
+
+.inverse h1
+  color: $inverse-color
+  strong
+    color: $inverse-color-bold
+
+.inverse h2
+  color: $inverse-color
+  strong
+    color: $inverse-color-bold
+
+.inverse h3
+  color: $inverse-color
+  strong
+    color: $inverse-color-bold
+
+.inverse .remark-inline-code
+  background: transparent

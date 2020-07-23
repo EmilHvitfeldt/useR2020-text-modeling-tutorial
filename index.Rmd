@@ -1324,7 +1324,7 @@ final_fit <- last_fit(
 
 class: inverse, right, middle
 
-# Notice that this is the first and only time we have used our testing data
+# Notice that this is the **first** and only time we have used our **testing data**
 
 ---
 
