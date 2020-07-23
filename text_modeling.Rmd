@@ -194,7 +194,7 @@ lasso_rs %>%
 We can visualize the results as well.
 
 ```{r}
-collect_metrics(lasso_rs)
+autoplot(lasso_rs)
 ```
 
 Which one was the **best**?
