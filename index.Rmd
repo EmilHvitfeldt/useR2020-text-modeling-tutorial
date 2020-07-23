@@ -341,17 +341,156 @@ complaints_rec <-
 
 ---
 
-TODO:
+# Feature engineering
 
-talk about preprocessing step by step
+```{r}
+complaints_rec <-
+  recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %>%
+  step_rm(date_received) %>%
+  step_dummy(has_role("dates")) %>%
+  step_unknown(tags) %>%
+  step_dummy(tags) %>%
+  step_tokenize(text) %>%
+  step_stopwords(text) %>%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %>%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %>%
+  step_tfidf(text)
+```
+
+---
+
+class: inverse, right, middle
+
+# You can **combine** text and non-text features in your model
+
+---
+
+# Feature engineering: handling dates
+
+```{r}
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %>%
+  step_rm(date_received)
+```
+
+---
+
+# Feature engineering: categorical data
+
+```{r}
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_unknown(tags) %>%
+  step_dummy(tags)
+```
+
+---
+
+class: inverse, right, middle
+
+# You can **combine** text and non-text features in your model
 
 
 ---
 
-# Let's talk about stopwords!
+# Feature engineering: text
+
+```{r}
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_tokenize(text) %>%
+  step_stopwords(text) %>%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %>%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %>%
+  step_tfidf(text)
+```
+
 
 ---
 
+class: inverse, right, middle
+
+# How do we create **features** from **natural language**?
+
+
+---
+
+# From natural language to ML features
+
+```{r R.options=list(quanteda_print_dfm_max_ndoc = 0, quanteda_print_dfm_max_nfeat = 0)}
+library(tidytext)
+
+complaints_train %>%
+  unnest_tokens(word, text) %>%
+  anti_join(get_stopwords()) %>%
+  count(complaint_id, stem) %>%
+  bind_tf_idf(stem, complaint_id, n) %>%
+  cast_dfm(complaint_id, stem, tf_idf)
+```
+
+
+---
+
+class: inverse, center, middle
+
+# `r emo::ji("stop_sign")` STOP WORDS `r emo::ji("stop_sign")`
+
+---
+
+# Stop words
+
+```{r}
+library(stopwords)
+stopwords()
+```
+
+
+---
+
+```{r echo=FALSE}
+library(UpSetR)
+fromList(list(smart = stopwords(source = "smart"),
+              snowball = stopwords(source = "snowball"),
+              iso = stopwords(source = "stopwords-iso"))) %>%
+  upset(empty.intersections = "on")
+```
+
+---
+
+# Stop words
+
+
+--
+
+
+- Stop words are context specific
+
+
+--
+
+
+- Stop word lexicons can have bias
+
+
+--
+
+
+- You can create your own stop word list
+
+
+--
+
+
+- See [Chapter 3](https://smltar.com/stopwords.html) for more! `r emo::ji("stop_sign")`
+
+---
 
 # Model specification
 
