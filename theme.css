@@ -24,6 +24,10 @@ del {
   font-weight: bold;
 }
 
+.footnote {
+  bottom: 0em;
+}
+
 /* General slides */
 .remark-code {
   font-family: 'Hack', 'Lucida Console', Monaco, monospace;
