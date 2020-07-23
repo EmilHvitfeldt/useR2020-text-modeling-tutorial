@@ -550,8 +550,8 @@ class: inverse, right, middle
 ---
 
 
-## You shall know a word by the company it keeps.
-### [`r emo::ji("speech_balloon")` John Rupert Firth](https://en.wikiquote.org/wiki/John_Rupert_Firth)
+>### You shall know a word by the company it keeps.
+#### [`r emo::ji("speech_balloon")` John Rupert Firth](https://en.wikiquote.org/wiki/John_Rupert_Firth)
 
 
 
@@ -731,6 +731,81 @@ complaints_folds
 ```
 
 ---
+class: middle, center, inverse
+
+# `r emo::ji("sparkles")` CROSS-VALIDATION `r emo::ji("sparkles")`
+
+---
+background-image: url(images/cross-validation/Slide2.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide3.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide4.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide5.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide6.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide7.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide8.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide9.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide10.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide11.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
 
 class: inverse, right, middle
 
@@ -738,7 +813,7 @@ class: inverse, right, middle
 
 ---
 
-## Time to tune! `r emo::ji("lightning")`
+## Time to tune! `r emo::ji("zap")`
 
 ```{r}
 set.seed(42)
@@ -747,13 +822,11 @@ lasso_grid <- tune_grid(
   resamples = complaints_folds,
   grid = param_grid
 ) 
-
-lasso_grid
 ```
 
 ---
 
-## Time to tune! `r emo::ji("lightning")`
+## Time to tune! `r emo::ji("zap")`
 
 ```{r echo=FALSE}
 lasso_grid
