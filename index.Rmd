@@ -845,7 +845,7 @@ class: inverse, right, middle
 # Create a workflow
 
 ```{r}
-wf_spec <- workflow() %>%
+complaints_wf <- workflow() %>%
   add_recipe(complaints_rec) %>%
   add_model(lasso_spec)
 ```
@@ -863,7 +863,7 @@ class: inverse, right, middle
 ```{r}
 set.seed(42)
 lasso_grid <- tune_grid(
-  wf_spec,
+  complaints_wf,
   resamples = complaints_folds,
   grid = param_grid, 
   control = control_grid(save_pred = TRUE)
