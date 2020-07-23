@@ -401,7 +401,22 @@ class: inverse, right, middle
 
 # Feature engineering: text
 
-```{r}
+```{r eval=FALSE}
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_tokenize(text) %>%
+  step_stopwords(text) %>%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %>%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %>%
+  step_tfidf(text)
+```
+
+---
+
+# Feature engineering: text
+
+```{r echo=FALSE}
 recipe(product ~ date_received + tags + text,
     data = complaints_train
   ) %>%
@@ -429,10 +444,10 @@ library(tidytext)
 
 complaints_train %>%
   unnest_tokens(word, text) %>%
-  anti_join(get_stopwords()) %>%
-  count(complaint_id, stem) %>%
-  bind_tf_idf(stem, complaint_id, n) %>%
-  cast_dfm(complaint_id, stem, tf_idf)
+  anti_join(get_stopwords(), by = "word") %>%
+  count(complaint_id, word) %>%
+  bind_tf_idf(word, complaint_id, n) %>%
+  cast_dfm(complaint_id, word, tf_idf)
 ```
 
 
@@ -453,6 +468,8 @@ stopwords()
 
 
 ---
+
+class: center, middle
 
 ```{r echo=FALSE}
 library(UpSetR)
