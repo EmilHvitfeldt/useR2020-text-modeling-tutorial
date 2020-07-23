@@ -888,7 +888,7 @@ class: inverse, center, middle
 
 # Tokenization
 
-- Action of turning text in smaller parts of text (tokens)
+- The action of turning text in smaller parts of text (tokens)
 
 
 --
@@ -906,7 +906,7 @@ class: inverse, center, middle
 --
 
 
-- Many options to to take into consideration 
+- Many options to take into consideration 
 
 ---
 
@@ -1006,13 +1006,13 @@ list(c("I", "am", "a", "long", "-", "time", "victim",
 --
 
 
-- Multi word expressions
+- Multi-word expressions
 
 ---
 
 class: inverse, center, middle
 
-### tokenization on English text is much easier than on text such as Chience or Japanese where the notion of a "word" isn't neatly seperated by spaces
+### tokenization on English text is much easier than on text such as Chinese or Japanese where the notion of a "word" isn't neatly separated by spaces
 
 ---
 
@@ -1138,7 +1138,7 @@ collect_predictions(lasso_grid,
 
 # update workflow
 
-We We can update our workflow with the best performing hyperparameters
+We can update our workflow with the best performing hyperparameters
 
 ```{r}
 wf_spec_final <- wf_spec %>%
