@@ -44,6 +44,7 @@ class: center, middle
 [<i class="fab  fa-twitter "></i> @juliasilge](https://twitter.com/juliasilge)  
 [<i class="fas  fa-link "></i> juliasilge.com](https://juliasilge.com)
 ]
+
 ---
 
 # Plan for today
@@ -58,6 +59,30 @@ class: center, middle
 
 
 - After the tutorial, use the [materials on GitHub](https://github.com/EmilHvitfeldt/useR2020-text-modeling-tutorial) and YouTube recording to run the code yourself 💪
+
+---
+
+# Text as data
+
+Let's look at complaints submitted to the [United States Consumer Financial Protection Bureau (CFPB)](https://www.consumerfinance.gov/data-research/consumer-complaints/).
+
+--
+
+
+- An individual experiences a problem 😩 with a consumer financial product or service, like a bank, loan, or credit card 💰
+
+
+--
+
+
+- They submit a **complaint** to the CFPB explaining what happened 😡
+
+
+--
+
+
+- This complaint is sent to the company, which can respond or dispute
+
 
 ---
 
@@ -111,6 +136,28 @@ complaints %&gt;%
 
 ---
 
+# Text as data
+
+
+--
+
+- Text like this can be used for **supervised** or **predictive** modeling
+
+
+--
+
+
+- We can build both regression and classification models with text data
+
+
+--
+
+
+- We can use the ways language exhibits organization to create features for modeling
+
+
+---
+
 # Modeling Packages
 
 
@@ -119,8 +166,8 @@ library(tidymodels)
 library(textrecipes)
 ```
 
-- [tidymodels](https://www.tidymodels.org/) is a collection of packages for modeling and machine learning using tidyverse principles.
-- [textrecipes](https://textrecipes.tidymodels.org/) extends the recipes package to be able to handle text preprocessing.
+- [tidymodels](https://www.tidymodels.org/) is a collection of packages for modeling and machine learning using tidyverse principles
+- [textrecipes](https://textrecipes.tidymodels.org/) extends the recipes package to handle text preprocessing
 
 ---
 
@@ -130,24 +177,28 @@ library(textrecipes)
 
 ---
 
+# smltar.com
+
+&lt;iframe src="https://smltar.com/" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+
 # Class imbalance
 
-&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
-class: inverse
+class: inverse, right, middle
 
-## We will simplify the task by turning it into a binary classification task
+# Let's approach this as a **binary classification task**
 
 ---
 
-# Splitting
+# Credit or not?
 
 
 ```r
-set.seed(1234)
-
 credit &lt;- "Credit reporting, credit repair services, or other personal consumer reports"
 
 complaints2class &lt;- complaints %&gt;%
@@ -156,6 +207,23 @@ complaints2class &lt;- complaints %&gt;%
     true = "Credit", 
     false = "Other"))) %&gt;%
   rename(text = consumer_complaint_narrative)
+```
+
+---
+
+# Data splitting
+
+The testing set is a precious resource which can be used only once
+
+&lt;img src="index_files/figure-html/all-split-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Data splitting
+
+
+```r
+set.seed(1234)
 
 complaints_split &lt;- initial_split(complaints2class, strata = product)
 
@@ -165,7 +233,7 @@ complaints_test &lt;- testing(complaints_split)
 
 ---
 
-# What variables can we use
+# Which of these variables can we use?
 
 
 ```r
@@ -186,23 +254,53 @@ names(complaints_train)
 
 ---
 
-# Variable selecition checklist:
+# Feature selection checklist
 
-- Are we ethically allowed to use this variable?
-- Are we legally allowed to use this variable?
-- Would this variable be available to us at prediction time?
-- Would this variable add more signal then noise?
-- Would this variable to explainable?
+--
+
+
+- Is it ethical to use this variable? (or even legal?)
+
+
+--
+
+
+- Will this variable be available at prediction time?
+
+
+--
+
+
+- Does this variable contribute to explainability?
 
 ---
 
-TODO: 
+# Which of these variables can we use?
 
-talk about which variables fall into which catagory
 
-zipcode would be clearly in catagory 1.
+```r
+names(complaints_train)
+```
 
-We end up using: date_received + tags + consumer_complaint_narrative
+```
+##  [1] "date_received"                "product"                     
+##  [3] "sub_product"                  "issue"                       
+##  [5] "sub_issue"                    "text"                        
+##  [7] "company_public_response"      "company"                     
+##  [9] "state"                        "zip_code"                    
+## [11] "tags"                         "consumer_consent_provided"   
+## [13] "submitted_via"                "date_sent_to_company"        
+## [15] "company_response_to_consumer" "timely_response"             
+## [17] "consumer_disputed"            "complaint_id"
+```
+
+---
+
+# Which of these variables can we use?
+
+- `date_received`
+- `tags`
+- `consumer_complaint_narrative` == 📃
 
 ---
 
@@ -228,19 +326,414 @@ complaints_rec &lt;-
 
 ---
 
-TODO:
+# Feature engineering
 
-talk about preprocessing step by step
+
+```r
+complaints_rec &lt;-
+  recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %&gt;%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %&gt;%
+  step_rm(date_received) %&gt;%
+  step_dummy(has_role("dates")) %&gt;%
+  step_unknown(tags) %&gt;%
+  step_dummy(tags) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %&gt;%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %&gt;%
+  step_tfidf(text)
+```
+
+--
+
+Also, what does `tune()` mean here? 🤔
+
+---
+
+class: inverse, right, middle
+
+# You can **combine** text and non-text features in your model
+
+---
+
+# Feature engineering: handling dates
+
+
+```r
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %&gt;%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %&gt;%
+  step_rm(date_received)
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Date features from date_received
+## Delete terms date_received
+```
+
+---
+
+# Feature engineering: categorical data
+
+
+```r
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %&gt;%
+  step_unknown(tags) %&gt;%
+  step_dummy(tags)
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Unknown factor level assignment for tags
+## Dummy variables from tags
+```
+
+---
+
+class: inverse, right, middle
+
+# You can **combine** text and non-text features in your model
 
 
 ---
 
-# Let's talk about stopwords!
+# Feature engineering: text
+
+
+```r
+recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_ngram(text, num_tokens = 3, min_num_tokens = 1) %&gt;%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %&gt;%
+  step_tfidf(text)
+```
+
+---
+
+# Feature engineering: text
+
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          3
+## 
+## Operations:
+## 
+## Tokenization for text
+## Stop word removal for text
+## ngramming for text
+## Text filtering for text
+## Term frequency-inverse document frequency with text
+```
+
+
+---
+
+class: inverse, right, middle
+
+# How do we create **features** from **natural language**?
+
+
+---
+
+# From natural language to ML features
+
+
+```r
+library(tidytext)
+
+complaints_train %&gt;%
+  unnest_tokens(word, text) %&gt;%
+  anti_join(get_stopwords(), by = "word") %&gt;%
+  count(complaint_id, word) %&gt;%
+  bind_tf_idf(word, complaint_id, n) %&gt;%
+  cast_dfm(complaint_id, word, tf_idf)
+```
+
+```
+## Document-feature matrix of: 440 documents, 4,726 features (98.7% sparse).
+```
+
+
+---
+
+class: inverse, center, middle
+
+# 🛑 STOP WORDS 🛑
+
+---
+
+# Stop words
+
+
+```r
+library(stopwords)
+stopwords()
+```
+
+```
+##   [1] "i"          "me"         "my"         "myself"     "we"         "our"       
+##   [7] "ours"       "ourselves"  "you"        "your"       "yours"      "yourself"  
+##  [13] "yourselves" "he"         "him"        "his"        "himself"    "she"       
+##  [19] "her"        "hers"       "herself"    "it"         "its"        "itself"    
+##  [25] "they"       "them"       "their"      "theirs"     "themselves" "what"      
+##  [31] "which"      "who"        "whom"       "this"       "that"       "these"     
+##  [37] "those"      "am"         "is"         "are"        "was"        "were"      
+##  [43] "be"         "been"       "being"      "have"       "has"        "had"       
+##  [49] "having"     "do"         "does"       "did"        "doing"      "would"     
+##  [55] "should"     "could"      "ought"      "i'm"        "you're"     "he's"      
+##  [61] "she's"      "it's"       "we're"      "they're"    "i've"       "you've"    
+##  [67] "we've"      "they've"    "i'd"        "you'd"      "he'd"       "she'd"     
+##  [73] "we'd"       "they'd"     "i'll"       "you'll"     "he'll"      "she'll"    
+##  [79] "we'll"      "they'll"    "isn't"      "aren't"     "wasn't"     "weren't"   
+##  [85] "hasn't"     "haven't"    "hadn't"     "doesn't"    "don't"      "didn't"    
+##  [91] "won't"      "wouldn't"   "shan't"     "shouldn't"  "can't"      "cannot"    
+##  [97] "couldn't"   "mustn't"    "let's"      "that's"     "who's"      "what's"    
+## [103] "here's"     "there's"    "when's"     "where's"    "why's"      "how's"     
+## [109] "a"          "an"         "the"        "and"        "but"        "if"        
+## [115] "or"         "because"    "as"         "until"      "while"      "of"        
+## [121] "at"         "by"         "for"        "with"       "about"      "against"   
+## [127] "between"    "into"       "through"    "during"     "before"     "after"     
+## [133] "above"      "below"      "to"         "from"       "up"         "down"      
+## [139] "in"         "out"        "on"         "off"        "over"       "under"     
+## [145] "again"      "further"    "then"       "once"       "here"       "there"     
+## [151] "when"       "where"      "why"        "how"        "all"        "any"       
+## [157] "both"       "each"       "few"        "more"       "most"       "other"     
+## [163] "some"       "such"       "no"         "nor"        "not"        "only"      
+## [169] "own"        "same"       "so"         "than"       "too"        "very"      
+## [175] "will"
+```
+
+
+---
+
+class: center, middle
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Stop words
+
+
+--
+
+
+- Stop words are context specific
+
+
+--
+
+
+- Stop word lexicons can have bias
+
+
+--
+
+
+- You can create your own stop word list
+
+
+--
+
+
+- See [Chapter 3](https://smltar.com/stopwords.html) for more! 🛑
+
+---
+
+class: inverse, right, middle
+
+## What kind of **models** work well for text?
+
+---
+
+# Text models
+
+Remember that text data is sparse! 😮
+
+--
+
+
+- Regularized linear models (glmnet)
+- Support vector machines
+- naive Bayes
+- Tree-based models like random forest? 
+
+---
+
+# Text models
+
+Remember that text data is sparse! 😮
+
+- Regularized linear models (glmnet)
+- Support vector machines
+- naive Bayes
+- Tree-based models like random forest?  🙅
+
+---
+
+class: inverse, right, middle
+
+# Does text data have to be **sparse**?
 
 ---
 
 
-# Model specification
+&gt;### You shall know a word by the company it keeps.
+#### [💬 John Rupert Firth](https://en.wikiquote.org/wiki/John_Rupert_Firth)
+
+
+
+--
+
+Learn more about word embeddings:
+
+- in [Chapter 5](https://smltar.com/embeddings.html)
+- at [juliasilge.github.io/why-r-webinar/](https://juliasilge.github.io/why-r-webinar/)
+
+
+---
+
+# To specify a model in tidymodels
+
+1\. Pick a **model**
+
+2\. Set the **mode** (if needed)
+
+3\. Set the **engine**
+
+---
+
+background-image: url(https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/parsnip.png)
+background-size: cover
+
+.footnote[
+Art by [Allison Horst](https://github.com/allisonhorst/stats-illustrations)
+]
+
+---
+
+# To specify a model in tidymodels
+
+All available models are listed at &lt;https://tidymodels.org/find/parsnip&gt;
+
+&lt;iframe src="https://tidymodels.org/find/parsnip" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+
+class: middle
+
+
+# `set_mode()`
+
+Some models can solve multiple types of problems
+
+
+
+```r
+svm_rbf() %&gt;% set_mode(mode = "regression")
+```
+
+```
+## Radial Basis Function Support Vector Machine Specification (regression)
+```
+
+---
+
+class: middle
+
+
+# `set_mode()`
+
+Some models can solve multiple types of problems
+
+
+
+```r
+svm_rbf() %&gt;% set_mode(mode = "classification")
+```
+
+```
+## Radial Basis Function Support Vector Machine Specification (classification)
+```
+
+---
+
+class: middle
+
+
+# `set_engine()`
+
+The same model can be implemented by multiple computational engines
+
+
+
+```r
+svm_rbf() %&gt;% set_engine("kernlab")
+```
+
+```
+## Radial Basis Function Support Vector Machine Specification (unknown)
+## 
+## Computational engine: kernlab
+```
+
+---
+
+class: middle
+
+
+# `set_engine()`
+
+The same model can be implemented by multiple computational engines
+
+
+
+```r
+svm_rbf() %&gt;% set_engine("liquidSVM")
+```
+
+```
+## Radial Basis Function Support Vector Machine Specification (unknown)
+## 
+## Computational engine: liquidSVM
+```
+
+---
+
+# What makes a model?
 
 
 ```r
@@ -262,20 +755,33 @@ lasso_spec
 ## Computational engine: glmnet
 ```
 
----
 
-# Creating a workflow
+--
 
-
-```r
-wf_spec &lt;- workflow() %&gt;%
-  add_recipe(complaints_rec) %&gt;%
-  add_model(lasso_spec)
-```
+It's `tune()` again! 😟
 
 ---
 
-# Setting up a tuning grid
+## Parameters and... hyperparameters?
+
+- Some model parameters can be learned from data during fitting/training
+
+
+--
+
+
+- Some CANNOT 😱
+
+
+--
+
+
+- These are **hyperparameters** of a model, and we estimate them by training lots of models with different hyperparameters and comparing them
+
+
+---
+
+# A grid of possible hyperparameters
 
 
 ```r
@@ -284,10 +790,13 @@ param_grid &lt;- grid_regular(
   max_tokens(range = c(500, 2000)),
   levels = 6
 )
-
-
-param_grid
 ```
+
+
+---
+
+# A grid of possible hyperparameters
+
 
 ```
 ## # A tibble: 36 x 2
@@ -308,24 +817,143 @@ param_grid
 
 ---
 
+class: inverse, right, middle
+
+# How can we **compare** and **evaluate** these different models?
+
+---
+
+background-image: url(https://www.tidymodels.org/start/resampling/img/resampling.svg)
+background-size: 60%
+
+---
+
+# Spend your data budget
 
 
 ```r
-complaints_folds &lt;- vfold_cv(complaints_train, v = 2)
+set.seed(123)
+complaints_folds &lt;- vfold_cv(complaints_train, v = 2, strata = product)
 
 complaints_folds
 ```
 
 ```
-## #  2-fold cross-validation 
+## #  2-fold cross-validation using stratification 
 ## # A tibble: 2 x 2
 ##   splits            id   
 ##   &lt;list&gt;            &lt;chr&gt;
-## 1 &lt;split [220/220]&gt; Fold1
-## 2 &lt;split [220/220]&gt; Fold2
+## 1 &lt;split [219/221]&gt; Fold1
+## 2 &lt;split [221/219]&gt; Fold2
 ```
 
 ---
+class: middle, center, inverse
+
+# ✨ CROSS-VALIDATION ✨
+
+---
+background-image: url(images/cross-validation/Slide2.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide3.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide4.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide5.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide6.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide7.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide8.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide9.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide10.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+background-image: url(images/cross-validation/Slide11.png)
+background-size: contain
+
+.footnote[
+Art by [Alison Hill](https://alison.rbind.io/)
+]
+---
+
+class: inverse, right, middle
+
+# Spend your data wisely to create **simulated** validation sets
+
+---
+
+class: inverse, right, middle
+
+# Now we have **resamples**, **features**, plus a **model**
+
+---
+
+# Create a workflow
+
+
+```r
+wf_spec &lt;- workflow() %&gt;%
+  add_recipe(complaints_rec) %&gt;%
+  add_model(lasso_spec)
+```
+
+---
+
+class: inverse, right, middle
+
+# What is a `workflow()`?
+
+---
+
+## Time to tune! ⚡
 
 
 ```r
@@ -333,356 +961,490 @@ set.seed(42)
 lasso_grid &lt;- tune_grid(
   wf_spec,
   resamples = complaints_folds,
-  grid = param_grid, control = control_grid(verbose = TRUE)
+  grid = param_grid, 
+  control = control_grid(save_pred = TRUE)
 ) 
 ```
 
-```
-## i Fold1: recipe 1/6
-```
-
-```
-## ✓ Fold1: recipe 1/6
-```
-
-```
-## i Fold1: recipe 1/6, model 1/1
-```
-
-```
-## ✓ Fold1: recipe 1/6, model 1/1
-```
-
-```
-## i Fold1: recipe 1/6, model 1/1 (predictions)
-```
-
-```
-## i Fold1: recipe 2/6
-```
-
-```
-## ✓ Fold1: recipe 2/6
-```
-
-```
-## i Fold1: recipe 2/6, model 1/1
-```
-
-```
-## ✓ Fold1: recipe 2/6, model 1/1
-```
-
-```
-## i Fold1: recipe 2/6, model 1/1 (predictions)
-```
-
-```
-## i Fold1: recipe 3/6
-```
-
-```
-## ✓ Fold1: recipe 3/6
-```
-
-```
-## i Fold1: recipe 3/6, model 1/1
-```
-
-```
-## ✓ Fold1: recipe 3/6, model 1/1
-```
-
-```
-## i Fold1: recipe 3/6, model 1/1 (predictions)
-```
-
-```
-## i Fold1: recipe 4/6
-```
-
-```
-## ! Fold1: recipe 4/6: max_features was set to '1400', but only 1341 was available and selected.
-```
-
-```
-## ✓ Fold1: recipe 4/6
-```
-
-```
-## i Fold1: recipe 4/6, model 1/1
-```
-
-```
-## ✓ Fold1: recipe 4/6, model 1/1
-```
-
-```
-## i Fold1: recipe 4/6, model 1/1 (predictions)
-```
-
-```
-## i Fold1: recipe 5/6
-```
-
-```
-## ! Fold1: recipe 5/6: max_features was set to '1700', but only 1341 was available and selected.
-```
-
-```
-## ✓ Fold1: recipe 5/6
-```
-
-```
-## i Fold1: recipe 5/6, model 1/1
-```
-
-```
-## ✓ Fold1: recipe 5/6, model 1/1
-```
+---
 
-```
-## i Fold1: recipe 5/6, model 1/1 (predictions)
-```
-
-```
-## i Fold1: recipe 6/6
-```
-
-```
-## ! Fold1: recipe 6/6: max_features was set to '2000', but only 1341 was available and selected.
-```
-
-```
-## ✓ Fold1: recipe 6/6
-```
-
-```
-## i Fold1: recipe 6/6, model 1/1
-```
-
-```
-## ✓ Fold1: recipe 6/6, model 1/1
-```
-
-```
-## i Fold1: recipe 6/6, model 1/1 (predictions)
-```
-
-```
-## i Fold2: recipe 1/6
-```
-
-```
-## ✓ Fold2: recipe 1/6
-```
+## Time to tune! ⚡
 
-```
-## i Fold2: recipe 1/6, model 1/1
-```
 
 ```
-## ✓ Fold2: recipe 1/6, model 1/1
+## Warning: This tuning result has notes. Example notes on model fitting include:
+## recipe 4/6: max_features was set to '1400', but only 1179 was available and selected.
+## recipe 5/6: max_features was set to '1700', but only 1354 was available and selected.
+## recipe 6/6: max_features was set to '2000', but only 1354 was available and selected.
 ```
 
 ```
-## i Fold2: recipe 1/6, model 1/1 (predictions)
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 2 x 5
+##   splits            id    .metrics          .notes           .predictions        
+##   &lt;list&gt;            &lt;chr&gt; &lt;list&gt;            &lt;list&gt;           &lt;list&gt;              
+## 1 &lt;split [219/221]&gt; Fold1 &lt;tibble [72 × 6]&gt; &lt;tibble [3 × 1]&gt; &lt;tibble [7,956 × 8]&gt;
+## 2 &lt;split [221/219]&gt; Fold2 &lt;tibble [72 × 6]&gt; &lt;tibble [3 × 1]&gt; &lt;tibble [7,884 × 8]&gt;
 ```
 
-```
-## i Fold2: recipe 2/6
-```
+---
+class: middle, center, inverse
 
-```
-## ✓ Fold2: recipe 2/6
-```
+# 💫 TOKENIZATION 💫
 
-```
-## i Fold2: recipe 2/6, model 1/1
-```
+---
 
-```
-## ✓ Fold2: recipe 2/6, model 1/1
-```
+# Tokenization
 
-```
-## i Fold2: recipe 2/6, model 1/1 (predictions)
-```
+- The process of splitting text in smaller pieces of text (_tokens_)
 
-```
-## i Fold2: recipe 3/6
-```
 
-```
-## ✓ Fold2: recipe 3/6
-```
+--
 
-```
-## i Fold2: recipe 3/6, model 1/1
-```
 
-```
-## ✓ Fold2: recipe 3/6, model 1/1
-```
+- Most common token == word, but sometimes we tokenize in a different way
 
-```
-## i Fold2: recipe 3/6, model 1/1 (predictions)
-```
 
-```
-## i Fold2: recipe 4/6
-```
+--
 
-```
-## ! Fold2: recipe 4/6: max_features was set to '1400', but only 1161 was available and selected.
-```
 
-```
-## ✓ Fold2: recipe 4/6
-```
+- An essential part of most text analyses
 
-```
-## i Fold2: recipe 4/6, model 1/1
-```
 
-```
-## ✓ Fold2: recipe 4/6, model 1/1
-```
+--
 
-```
-## i Fold2: recipe 4/6, model 1/1 (predictions)
-```
 
-```
-## i Fold2: recipe 5/6
-```
+- Many options to take into consideration 
 
-```
-## ! Fold2: recipe 5/6: max_features was set to '1700', but only 1161 was available and selected.
-```
+---
 
-```
-## ✓ Fold2: recipe 5/6
-```
+# Tokenization: whitespace
 
-```
-## i Fold2: recipe 5/6, model 1/1
-```
 
-```
-## ✓ Fold2: recipe 5/6, model 1/1
-```
 
-```
-## i Fold2: recipe 5/6, model 1/1 (predictions)
-```
 
-```
-## i Fold2: recipe 6/6
+```r
+token_example
 ```
 
 ```
-## ! Fold2: recipe 6/6: max_features was set to '2000', but only 1161 was available and selected.
+## [1] "I am a long-time victim of identity theft. This debt doesn't belong to me."
 ```
 
-```
-## ✓ Fold2: recipe 6/6
-```
+--
 
-```
-## i Fold2: recipe 6/6, model 1/1
-```
 
-```
-## ✓ Fold2: recipe 6/6, model 1/1
+```r
+strsplit(token_example, "\\s")
 ```
 
 ```
-## i Fold2: recipe 6/6, model 1/1 (predictions)
+## [[1]]
+##  [1] "I"         "am"        "a"         "long-time" "victim"    "of"        "identity" 
+##  [8] "theft."    "This"      "debt"      "doesn't"   "belong"    "to"        "me."
 ```
 
 ---
 
-# lets talk about tokenization
+# Tokenization: [tokenizers](https://docs.ropensci.org/tokenizers/) package
 
-(this feels like an okay segway since using n-grams)
+
+
+```r
+token_example
+```
+
+```
+## [1] "I am a long-time victim of identity theft. This debt doesn't belong to me."
+```
+
+
+```r
+library(tokenizers)
+
+tokenize_words(token_example)
+```
+
+```
+## [[1]]
+##  [1] "i"        "am"       "a"        "long"     "time"     "victim"   "of"       "identity"
+##  [9] "theft"    "this"     "debt"     "doesn't"  "belong"   "to"       "me"
+```
 
 ---
 
-# Looking at the hyperparameters
+# Tokenization: [spaCy](https://spacy.io/) library
+
+
+
+```r
+token_example
+```
+
+```
+## [1] "I am a long-time victim of identity theft. This debt doesn't belong to me."
+```
+
+
+```r
+library(spacyr)
+
+spacy_tokenize(token_example)
+```
+
+
+```
+## [[1]]
+##  [1] "I"        "am"       "a"        "long"     "-"        "time"     "victim"   "of"      
+##  [9] "identity" "theft"    "."        "This"     "debt"     "does"     "n't"      "belong"  
+## [17] "to"       "me"       "."
+```
+
+---
+
+whitespace
+
+
+```
+## [[1]]
+##  [1] "I"         "am"        "a"         "long-time" "victim"    "of"        "identity" 
+##  [8] "theft."    "This"      "debt"      "doesn't"   "belong"    "to"        "me."
+```
+
+tokenizers package
+
+
+```
+## [[1]]
+##  [1] "i"        "am"       "a"        "long"     "time"     "victim"   "of"       "identity"
+##  [9] "theft"    "this"     "debt"     "doesn't"  "belong"   "to"       "me"
+```
+
+spaCy library
+
+
+```
+## [[1]]
+##  [1] "I"        "am"       "a"        "long"     "-"        "time"     "victim"   "of"      
+##  [9] "identity" "theft"    "."        "This"     "debt"     "does"     "n't"      "belong"  
+## [17] "to"       "me"       "."
+```
+
+---
+
+# Tokenization considerations
+
+- Should we turn UPPERCASE letters to lowercase?
+
+
+--
+
+
+- How should we handle punctuation⁉️
+
+
+--
+
+
+- What about non-word characters _inside_ words?
+
+
+--
+
+
+- Should compound words be split or multi-word ideas be kept together?
+
+---
+
+class: inverse, right, middle
+
+## Tokenization for English text is typically **much easier** than other languages.
+
+---
+
+# N-grams
+
+## A sequence of `n` sequential tokens
+
+--
+
+
+- Captures words that appear together often
+
+
+--
+
+
+- Can detect negations ("not happy")
+
+
+--
+
+
+- Larger cardinality
+
+
+---
+
+
+```r
+tokenize_ngrams(token_example, n = 1)
+```
+
+```
+## [[1]]
+##  [1] "i"        "am"       "a"        "long"     "time"     "victim"   "of"       "identity"
+##  [9] "theft"    "this"     "debt"     "doesn't"  "belong"   "to"       "me"
+```
+
+
+
+```r
+tokenize_ngrams(token_example, n = 2)
+```
+
+```
+## [[1]]
+##  [1] "i am"           "am a"           "a long"         "long time"      "time victim"   
+##  [6] "victim of"      "of identity"    "identity theft" "theft this"     "this debt"     
+## [11] "debt doesn't"   "doesn't belong" "belong to"      "to me"
+```
+
+
+
+```r
+tokenize_ngrams(token_example, n = 3)
+```
+
+```
+## [[1]]
+##  [1] "i am a"              "am a long"           "a long time"         "long time victim"   
+##  [5] "time victim of"      "victim of identity"  "of identity theft"   "identity theft this"
+##  [9] "theft this debt"     "this debt doesn't"   "debt doesn't belong" "doesn't belong to"  
+## [13] "belong to me"
+```
+
+---
+
+# Tokenization
+
+See [Chapter 2](https://smltar.com/tokenization.html) for more!
+
+---
+
+# Look at the tuning results 👀
+
+
+
+```r
+collect_metrics(lasso_grid)
+```
+
+```
+## # A tibble: 72 x 8
+##     penalty max_tokens .metric  .estimator  mean     n std_err .config       
+##       &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;         
+##  1 0.0001          500 accuracy binary     0.766     2 0.0194  Recipe1_Model1
+##  2 0.0001          500 roc_auc  binary     0.850     2 0.0242  Recipe1_Model1
+##  3 0.000631        500 accuracy binary     0.766     2 0.0194  Recipe1_Model2
+##  4 0.000631        500 roc_auc  binary     0.850     2 0.0242  Recipe1_Model2
+##  5 0.00398         500 accuracy binary     0.775     2 0.0149  Recipe1_Model3
+##  6 0.00398         500 roc_auc  binary     0.853     2 0.0254  Recipe1_Model3
+##  7 0.0251          500 accuracy binary     0.789     2 0.00323 Recipe1_Model4
+##  8 0.0251          500 roc_auc  binary     0.877     2 0.00645 Recipe1_Model4
+##  9 0.158           500 accuracy binary     0.625     2 0.00966 Recipe1_Model5
+## 10 0.158           500 roc_auc  binary     0.747     2 0.0434  Recipe1_Model5
+## # … with 62 more rows
+```
+
+---
 
 
 ```r
 autoplot(lasso_grid)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-48-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
-# Looking at the hyperparameters
+# Look at the tuning results 👀
 
 
 ```r
 lasso_grid %&gt;%
-  show_best("accuracy")
+  show_best("roc_auc")
 ```
 
 ```
 ## # A tibble: 5 x 8
-##    penalty max_tokens .metric  .estimator  mean     n std_err .config       
-##      &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;         
-## 1 0.00398        1400 accuracy binary     0.795     2  0.0136 Recipe4_Model3
-## 2 0.00398        1700 accuracy binary     0.795     2  0.0136 Recipe5_Model3
-## 3 0.00398        2000 accuracy binary     0.795     2  0.0136 Recipe6_Model3
-## 4 0.0001         1400 accuracy binary     0.793     2  0.0114 Recipe4_Model1
-## 5 0.000631       1400 accuracy binary     0.793     2  0.0114 Recipe4_Model2
+##   penalty max_tokens .metric .estimator  mean     n std_err .config       
+##     &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;         
+## 1  0.0251       1400 roc_auc binary     0.892     2 0.00388 Recipe4_Model4
+## 2  0.0251       1700 roc_auc binary     0.892     2 0.00388 Recipe5_Model4
+## 3  0.0251       2000 roc_auc binary     0.892     2 0.00388 Recipe6_Model4
+## 4  0.0251       1100 roc_auc binary     0.889     2 0.00593 Recipe3_Model4
+## 5  0.0251        800 roc_auc binary     0.880     2 0.00486 Recipe2_Model4
 ```
 
 ---
 
-# update workflow
+# The **best** 🥇 hyperparameters 
+
+
+```r
+best_roc_auc &lt;- select_best(lasso_grid, "roc_auc")
+
+best_roc_auc
+```
+
+```
+## # A tibble: 1 x 3
+##   penalty max_tokens .config       
+##     &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;         
+## 1  0.0251       1400 Recipe4_Model4
+```
+
+---
+
+# Evaluate the best model 📐
+
+
+```r
+collect_predictions(lasso_grid, 
+                    parameters = best_roc_auc)
+```
+
+```
+## # A tibble: 440 x 9
+##    id    .pred_Credit .pred_Other  .row max_tokens penalty .pred_class product .config       
+##    &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;int&gt;      &lt;int&gt;   &lt;dbl&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;chr&gt;         
+##  1 Fold1       0.586        0.414     2       1400  0.0251 Credit      Credit  Recipe4_Model4
+##  2 Fold1       0.739        0.261     3       1400  0.0251 Credit      Credit  Recipe4_Model3
+##  3 Fold1       0.107        0.893     4       1400  0.0251 Other       Other   Recipe4_Model2
+##  4 Fold1       0.839        0.161     5       1400  0.0251 Credit      Credit  Recipe4_Model1
+##  5 Fold1       0.396        0.604     7       1400  0.0251 Other       Other   Recipe4_Model6
+##  6 Fold1       0.0991       0.901     9       1400  0.0251 Other       Credit  Recipe4_Model5
+##  7 Fold1       0.295        0.705    10       1400  0.0251 Other       Other   Recipe4_Model4
+##  8 Fold1       0.0778       0.922    11       1400  0.0251 Other       Other   Recipe4_Model3
+##  9 Fold1       0.254        0.746    15       1400  0.0251 Other       Other   Recipe4_Model2
+## 10 Fold1       0.732        0.268    18       1400  0.0251 Credit      Credit  Recipe4_Model1
+## # … with 430 more rows
+```
+
+---
+
+# Evaluate the best model 📐
+
+
+```r
+collect_predictions(lasso_grid, 
+                    parameters = select_best(lasso_grid, "roc_auc")) %&gt;%
+  group_by(id) %&gt;%
+  roc_curve(truth = product, .pred_Credit) %&gt;%
+  autoplot()
+```
+
+---
+
+# Evaluate the best model 📐
+
+&lt;img src="index_files/figure-html/unnamed-chunk-53-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Update the workflow
+
+We can update our workflow with the best performing hyperparameters.
 
 
 ```r
 wf_spec_final &lt;- wf_spec %&gt;%
-  finalize_workflow(parameters = select_best(lasso_grid, "accuracy"))
+  finalize_workflow(parameters = best_roc_auc)
 ```
+
+This workflow is ready to go! It can now be applied to new data.
 
 ---
 
-# Final fit
+class: inverse, right, middle
+
+# How is our model **thinking**?
+
+---
+
+## Variable importance
 
 
 ```r
-final_fit &lt;- last_fit(object = wf_spec_final, 
-                      split = complaints_split, 
-                      metrics = metric_set(accuracy))
+wf_spec_final %&gt;%
+  fit(complaints_train) %&gt;%
+  pull_workflow_fit() %&gt;%
+  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %&gt;%
+  filter(!str_detect(Variable, "tfidf")) %&gt;%
+  filter(Importance != 0)
 ```
+
+```
+## # A tibble: 4 x 3
+##   Variable                Importance Sign 
+##   &lt;chr&gt;                        &lt;dbl&gt; &lt;chr&gt;
+## 1 date_received_month_Apr      1.03  POS  
+## 2 date_received_month_Aug      0.515 POS  
+## 3 tags_unknown                -0.174 NEG  
+## 4 date_received_month_May     -0.329 NEG
+```
+
+---
+
+## Variable importance
 
 
 ```r
-final_fit %&gt;%
-  collect_predictions() %&gt;%
-  conf_mat(product, .pred_class)
-```
-
-```
-##           Truth
-## Prediction Credit Other
-##     Credit     57    12
-##     Other      14    63
+wi_data &lt;- wf_spec_final %&gt;%
+  fit(complaints_train) %&gt;%
+  pull_workflow_fit() %&gt;%
+  vip::vi(lambda = select_best(lasso_grid, "roc_auc")$penalty) %&gt;%
+  mutate(Variable = str_remove_all(Variable, "tfidf_text_")) %&gt;%
+  filter(Importance != 0)
 ```
 
 ---
 
-# Variable importance - how is our model thinking
+## Variable importance 
 
-&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+```r
+wi_data
+```
+
+```
+## # A tibble: 227 x 3
+##    Variable       Importance Sign 
+##    &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;
+##  1 xx_xxxx_called       88.7 POS  
+##  2 thru                 74.7 POS  
+##  3 entity               65.4 POS  
+##  4 contact              55.5 POS  
+##  5 phone_calls          51.2 POS  
+##  6 ask                  49.9 POS  
+##  7 comply               49.6 POS  
+##  8 stating              41.5 POS  
+##  9 filed                36.9 POS  
+## 10 refuse               36.6 POS  
+## # … with 217 more rows
+```
 
 ---
 
+class: center, middle
 
+
+
+&lt;img src="index_files/figure-html/unnamed-chunk-59-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
 
 ## Credit Complaint #1
 
@@ -694,7 +1456,9 @@ final_fit %&gt;%
 <span>i</span>
 <span>have</span>
 <span>contacted</span>
-<span style="color:green;">equifax</span>
+<span style="color:#39763E;">
+<em>equifax</em>
+</span>
 <span>on</span>
 <span>at</span>
 <span>least</span>
@@ -705,8 +1469,12 @@ final_fit %&gt;%
 <span>a</span>
 <span>xxxx</span>
 <span>xxxx</span>
-<span style="color:green;">credit</span>
-<span style="color:blue;">card</span>
+<span style="color:#69A75F;">
+<em>credit</em>
+</span>
+<span style="color:#2A406C;">
+<em>card</em>
+</span>
 <span>on</span>
 <span>my</span>
 <span>profile</span>
@@ -716,24 +1484,34 @@ final_fit %&gt;%
 <span>photo</span>
 <span>identification</span>
 <span>my</span>
-<span style="color:green;">ss</span>
+<span style="color:#19341B;">
+<em>ss</em>
+</span>
 <span>and</span>
 <span>a</span>
 <span>copy</span>
 <span>of</span>
 <span>the</span>
-<span style="color:blue;">card</span>
+<span style="color:#2A406C;">
+<em>card</em>
+</span>
 <span>because</span>
 <span>they</span>
 <span>have</span>
 <span>refused</span>
 <span>to</span>
-<span style="color:green;">update</span>
+<span style="color:#26512A;">
+<em>update</em>
+</span>
 <span>my</span>
 <span>profile</span>
 <span>my</span>
-<span style="color:green;">credit</span>
-<span style="color:green;">score</span>
+<span style="color:#69A75F;">
+<em>credit</em>
+</span>
+<span style="color:#3E7E41;">
+<em>score</em>
+</span>
 <span>remains</span>
 <span>below</span>
 <span>600</span>
@@ -742,31 +1520,45 @@ final_fit %&gt;%
 <span>have</span>
 <span>been</span>
 <span>denied</span>
-<span style="color:green;">credit</span>
+<span style="color:#69A75F;">
+<em>credit</em>
+</span>
 <span>on</span>
-<span style="color:blue;">several</span>
+<span style="color:#4363A2;">
+<em>several</em>
+</span>
 <span>occasions</span>
 <span>i</span>
 <span>have</span>
 <span>had</span>
 <span>the</span>
-<span style="color:blue;">card</span>
+<span style="color:#2A406C;">
+<em>card</em>
+</span>
 <span>for</span>
 <span>at</span>
 <span>least</span>
-<span style="color:green;">4</span>
+<span style="color:#1F4423;">
+<em>4</em>
+</span>
 <span>years</span>
 <span>yet</span>
 <span>my</span>
-<span style="color:green;">credit</span>
+<span style="color:#69A75F;">
+<em>credit</em>
+</span>
 <span>profile</span>
 <span>with</span>
-<span style="color:green;">equifax</span>
+<span style="color:#39763E;">
+<em>equifax</em>
+</span>
 <span>claims</span>
 <span>i</span>
 <span>have</span>
 <span>no</span>
-<span style="color:green;">credit</span>
+<span style="color:#69A75F;">
+<em>credit</em>
+</span>
 <span>history</span>
 <span>i</span>
 <span>have</span>
@@ -774,7 +1566,9 @@ final_fit %&gt;%
 <span>them</span>
 <span>via</span>
 <span>letters</span>
-<span style="color:blue;">online</span>
+<span style="color:#0C1418;">
+<em>online</em>
+</span>
 <span>disputes</span>
 <span>and</span>
 <span>telephone</span>
@@ -806,7 +1600,9 @@ final_fit %&gt;%
 <span>disputed</span>
 <span>items</span>
 <span>with</span>
-<span style="color:green;">equifax</span>
+<span style="color:#39763E;">
+<em>equifax</em>
+</span>
 <span>back</span>
 <span>on</span>
 <span>xx</span>
@@ -824,7 +1620,9 @@ final_fit %&gt;%
 <span>sent</span>
 <span>them</span>
 <span>a</span>
-<span style="color:blue;">notice</span>
+<span style="color:#3E5E99;">
+<em>notice</em>
+</span>
 <span>that</span>
 <span>they</span>
 <span>failed</span>
@@ -837,14 +1635,20 @@ final_fit %&gt;%
 <span>my</span>
 <span>request</span>
 <span>to</span>
-<span style="color:green;">dispute</span>
+<span style="color:#39773E;">
+<em>dispute</em>
+</span>
 <span>items</span>
 <span>that</span>
 <span>are</span>
-<span style="color:green;">reporting</span>
+<span style="color:#1E3F20;">
+<em>reporting</em>
+</span>
 <span>on</span>
 <span>my</span>
-<span style="color:green;">credit</span>
+<span style="color:#69A75F;">
+<em>credit</em>
+</span>
 <span>reports</span>
 </div>
 
@@ -867,12 +1671,16 @@ final_fit %&gt;%
 <span>2019</span>
 <span>by</span>
 <span>portfolio</span>
-<span style="color:blue;">recovery</span>
+<span style="color:#496AAB;">
+<em>recovery</em>
+</span>
 <span>associates</span>
 <span>about</span>
 <span>a</span>
 <span>past</span>
-<span style="color:blue;">debt</span>
+<span style="color:#1F2F4E;">
+<em>debt</em>
+</span>
 <span>that</span>
 <span>i</span>
 <span>have</span>
@@ -901,7 +1709,9 @@ final_fit %&gt;%
 <span>location</span>
 <span>that</span>
 <span>my</span>
-<span style="color:blue;">physical</span>
+<span style="color:#132815;">
+<em>physical</em>
+</span>
 <span>home</span>
 <span>address</span>
 <span>upon</span>
@@ -918,16 +1728,26 @@ final_fit %&gt;%
 <span>was</span>
 <span>refusing</span>
 <span>to</span>
-<span style="color:blue;">pay</span>
+<span style="color:#95C077;">
+<em>pay</em>
+</span>
 <span>the</span>
-<span style="color:blue;">debt</span>
+<span style="color:#1F2F4E;">
+<em>debt</em>
+</span>
 <span>i</span>
-<span style="color:blue;">never</span>
+<span style="color:#121927;">
+<em>never</em>
+</span>
 <span>refused</span>
 <span>to</span>
-<span style="color:blue;">pay</span>
+<span style="color:#95C077;">
+<em>pay</em>
+</span>
 <span>the</span>
-<span style="color:blue;">debt</span>
+<span style="color:#1F2F4E;">
+<em>debt</em>
+</span>
 <span>i</span>
 <span>would</span>
 <span>just</span>
@@ -935,7 +1755,9 @@ final_fit %&gt;%
 <span>clarification</span>
 <span>on</span>
 <span>the</span>
-<span style="color:blue;">debt</span>
+<span style="color:#1F2F4E;">
+<em>debt</em>
+</span>
 <span>i</span>
 <span>will</span>
 <span>be</span>
@@ -979,14 +1801,20 @@ final_fit %&gt;%
 <span>and</span>
 <span>do</span>
 <span>not</span>
-<span style="color:blue;">understand</span>
+<span style="color:#314B7C;">
+<em>understand</em>
+</span>
 <span>the</span>
-<span style="color:blue;">charges</span>
+<span style="color:#2D6133;">
+<em>charges</em>
+</span>
 <span>against</span>
 <span>me</span>
 <span>i</span>
 <span>have</span>
-<span style="color:blue;">attempted</span>
+<span style="color:#38548C;">
+<em>attempted</em>
+</span>
 <span>to</span>
 <span>resolve</span>
 <span>the</span>
@@ -1003,7 +1831,9 @@ final_fit %&gt;%
 <span>owe</span>
 <span>them</span>
 <span>additional</span>
-<span style="color:blue;">monies</span>
+<span style="color:#2C4471;">
+<em>monies</em>
+</span>
 <span>i</span>
 <span>believe</span>
 <span>that</span>
@@ -1024,7 +1854,9 @@ final_fit %&gt;%
 <span>poorly</span>
 <span>and</span>
 <span>one</span>
-<span style="color:green;">person</span>
+<span style="color:#38743D;">
+<em>person</em>
+</span>
 <span>says</span>
 <span>one</span>
 <span>thing</span>
@@ -1043,6 +1875,76 @@ final_fit %&gt;%
 </div>
 
 ---
+
+# Final fit
+
+We will now use `last_fit()` to **fit** our model one last time on our training data and **evaluate** it on our testing data.
+
+
+```r
+final_fit &lt;- last_fit(
+  wf_spec_final, 
+  complaints_split
+)
+```
+
+---
+
+class: inverse, right, middle
+
+# Notice that this is the **first** and **only** time we have used our **testing data**
+
+---
+
+# Evaluate on the **test** data 📐
+
+
+```r
+final_fit %&gt;%
+  collect_metrics()
+```
+
+```
+## # A tibble: 2 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy binary         0.808
+## 2 roc_auc  binary         0.851
+```
+
+---
+
+
+```r
+final_fit %&gt;%
+  collect_predictions() %&gt;%
+  roc_curve(truth = product, .pred_Credit) %&gt;%
+  autoplot()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-66-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: center, middle
+
+# Thanks!
+
+##[smltar.com](https://smltar.com/)
+
+.pull-left[
+&lt;img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/&gt;  
+[<i class="fab  fa-github "></i> @EmilHvitfeldt](https://github.com/EmilHvitfeldt)  
+[<i class="fab  fa-twitter "></i> @Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)  
+[<i class="fas  fa-link "></i> hvitfeldt.me](https://www.hvitfeldt.me/)
+]
+
+.pull-right[
+&lt;img style="border-radius: 50%;" src="https://github.com/juliasilge.png" width="150px"/&gt;  
+[<i class="fab  fa-github "></i> @juliasilge](https://github.com/juliasilge)  
+[<i class="fab  fa-twitter "></i> @juliasilge](https://twitter.com/juliasilge)  
+[<i class="fas  fa-link "></i> juliasilge.com](https://juliasilge.com)
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

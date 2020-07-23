@@ -993,7 +993,7 @@ list(c("I", "am", "a", "long", "-", "time", "victim",
 --
 
 
-- How should we handle punctuation? `r emo::ji("interrobang")`
+- How should we handle punctuation`r emo::ji("interrobang")`
 
 
 --
@@ -1017,7 +1017,7 @@ class: inverse, right, middle
 
 # N-grams
 
-## A sequence of n sequential tokens
+## A sequence of `n` sequential tokens
 
 --
 
@@ -1061,7 +1061,7 @@ See [Chapter 2](https://smltar.com/tokenization.html) for more!
 
 ---
 
-# Looking at the hyperparameters `r emo::ji("eyes")`
+# Look at the tuning results `r emo::ji("eyes")`
 
 
 ```{r}
@@ -1069,8 +1069,6 @@ collect_metrics(lasso_grid)
 ```
 
 ---
-
-# Look at the tuning results `r emo::ji("eyes")`
 
 ```{r}
 autoplot(lasso_grid)
@@ -1087,7 +1085,7 @@ lasso_grid %>%
 
 ---
 
-# The **best** hyperparameters `r emo::ji("first")`
+# The **best** `r emo::ji("first")` hyperparameters 
 
 ```{r}
 best_roc_auc <- select_best(lasso_grid, "roc_auc")
@@ -1137,7 +1135,7 @@ collect_predictions(lasso_grid,
 
 # Update the workflow
 
-We can update our workflow with the best performing hyperparameters
+We can update our workflow with the best performing hyperparameters.
 
 ```{r}
 wf_spec_final <- wf_spec %>%
@@ -1150,7 +1148,7 @@ This workflow is ready to go! It can now be applied to new data.
 
 class: inverse, right, middle
 
-## How is our model **thinking**?
+# How is our model **thinking**?
 
 ---
 
