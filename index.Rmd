@@ -879,28 +879,27 @@ lasso_grid
 ```
 
 ---
+class: middle, center, inverse
 
-class: inverse, center, middle
-
-# lets talk about tokenization
+# `r emo::ji("dizzy")` TOKENIZATION `r emo::ji("dizzy")`
 
 ---
 
 # Tokenization
 
-- The action of turning text in smaller parts of text (tokens)
+- The process of splitting text in smaller pieces of text (_tokens_)
 
 
 --
 
 
-- Typically words but not exclusively
+- Most common token == word, but sometimes we tokenize in a different way
 
 
 --
 
 
-- Often an essential part of any text preprocessing task
+- An essential part of most text analyses
 
 
 --
@@ -910,10 +909,10 @@ class: inverse, center, middle
 
 ---
 
-# Tokenization - Whitespaces
+# Tokenization: whitespace
 
 ```{r, echo=FALSE}
-token_example <- "I am a long-time victim of identity theft. This debt don't belong to me."
+token_example <- "I am a long-time victim of identity theft. This debt doesn't belong to me."
 ```
 
 ```{r}
@@ -928,7 +927,7 @@ strsplit(token_example, "\\s")
 
 ---
 
-# Tokenization - tokenizers package
+# Tokenization: [tokenizers](https://docs.ropensci.org/tokenizers/) package
 
 
 ```{r}
@@ -943,7 +942,7 @@ tokenize_words(token_example)
 
 ---
 
-# Tokenization - spacy library
+# Tokenization: [spaCy](https://spacy.io/) library
 
 
 ```{r}
@@ -953,18 +952,18 @@ token_example
 ```{r, eval=FALSE}
 library(spacyr)
 
-spacyr::spacy_tokenize(token_example)
+spacy_tokenize(token_example)
 ```
 
 ```{r echo=FALSE}
 list(c("I", "am", "a", "long", "-", "time", "victim", 
-"of", "identity", "theft", ".", "This", "debt", "do", "n't", 
+"of", "identity", "theft", ".", "This", "debt", "does", "n't", 
 "belong", "to", "me", "."))
 ```
 
 ---
 
-Whitespace
+whitespace
 
 ```{r, echo=FALSE}
 strsplit(token_example, "\\s")
@@ -976,11 +975,11 @@ tokenizers package
 tokenize_words(token_example)
 ```
 
-spacy library
+spaCy library
 
 ```{r echo=FALSE}
 list(c("I", "am", "a", "long", "-", "time", "victim", 
-"of", "identity", "theft", ".", "This", "debt", "do", "n't", 
+"of", "identity", "theft", ".", "This", "debt", "does", "n't", 
 "belong", "to", "me", "."))
 ```
 
@@ -988,31 +987,31 @@ list(c("I", "am", "a", "long", "-", "time", "victim",
 
 # Tokenization considerations
 
-- Do we need to turn UPPERCASE letters to lowercase
+- Should we turn UPPERCASE letters to lowercase?
 
 
 --
 
 
-- How are we handling punctuation??
+- How should we handle punctuation? `r emo::ji("interrobang")`
 
 
 --
 
 
-- how about non-word characters inside words?
+- What about non-word characters _inside_ words?
 
 
 --
 
 
-- Multi-word expressions
+- Should compound words be split or multi-word ideas be kept together?
 
 ---
 
-class: inverse, center, middle
+class: inverse, right, middle
 
-### tokenization on English text is much easier than on text such as Chinese or Japanese where the notion of a "word" isn't neatly separated by spaces
+## Tokenization for English text is typically **much easier** than other languages.
 
 ---
 
@@ -1071,7 +1070,7 @@ collect_metrics(lasso_grid)
 
 ---
 
-# Looking at the hyperparameters `r emo::ji("eyes")`
+# Look at the tuning results `r emo::ji("eyes")`
 
 ```{r}
 autoplot(lasso_grid)
@@ -1079,7 +1078,7 @@ autoplot(lasso_grid)
 
 ---
 
-# Looking at the hyperparameters `r emo::ji("eyes")`
+# Look at the tuning results `r emo::ji("eyes")`
 
 ```{r}
 lasso_grid %>%
@@ -1088,7 +1087,7 @@ lasso_grid %>%
 
 ---
 
-# Extracting the best hyperparameters `r emo::ji("first")`
+# The **best** hyperparameters `r emo::ji("first")`
 
 ```{r}
 best_roc_auc <- select_best(lasso_grid, "roc_auc")
@@ -1098,7 +1097,7 @@ best_roc_auc
 
 ---
 
-# Evaluation the best model `r emo::ji("ruler")`
+# Evaluate the best model `r emo::ji("ruler")`
 
 ```{r}
 collect_predictions(lasso_grid, 
@@ -1107,7 +1106,7 @@ collect_predictions(lasso_grid,
 
 ---
 
-# Evaluation the best model `r emo::ji("ruler")`
+# Evaluate the best model `r emo::ji("ruler")`
 
 ```{r, eval=FALSE}
 collect_predictions(lasso_grid, 
@@ -1119,7 +1118,7 @@ collect_predictions(lasso_grid,
 
 ---
 
-# Evaluation the best model `r emo::ji("ruler")`
+# Evaluate the best model `r emo::ji("ruler")`
 
 ```{r, echo=FALSE}
 collect_predictions(lasso_grid, 
@@ -1136,7 +1135,7 @@ collect_predictions(lasso_grid,
 
 ---
 
-# update workflow
+# Update the workflow
 
 We can update our workflow with the best performing hyperparameters
 
@@ -1149,7 +1148,13 @@ This workflow is ready to go! It can now be applied to new data.
 
 ---
 
-## Variable importance - how is our model thinking
+class: inverse, right, middle
+
+## How is our model **thinking**?
+
+---
+
+## Variable importance
 
 ```{r}
 wf_spec_final %>%
@@ -1162,7 +1167,7 @@ wf_spec_final %>%
 
 ---
 
-## Variable importance - how is our model thinking
+## Variable importance
 
 ```{r}
 wi_data <- wf_spec_final %>%
@@ -1175,7 +1180,7 @@ wi_data <- wf_spec_final %>%
 
 ---
 
-## Variable importance - how is our model thinking
+## Variable importance 
 
 ```{r}
 wi_data
@@ -1183,7 +1188,7 @@ wi_data
 
 ---
 
-## Variable importance - how is our model thinking
+class: center, middle
 
 ```{r, echo=FALSE}
 max_imp <- log(max(abs(wi_data$Importance)))
@@ -1311,7 +1316,7 @@ complaints_train %>%
 
 # Final fit
 
-We will now use `last_fit()` to fit our model one last time on our training data and evaluate it on our testing data.
+We will now use `last_fit()` to **fit** our model one last time on our training data and **evaluate** it on our testing data.
 
 ```{r}
 final_fit <- last_fit(
@@ -1324,11 +1329,11 @@ final_fit <- last_fit(
 
 class: inverse, right, middle
 
-# Notice that this is the **first** and only time we have used our **testing data**
+# Notice that this is the **first** and **only** time we have used our **testing data**
 
 ---
 
-# Test data evaluation
+# Evaluate on the **test** data `r emo::ji("ruler")`
 
 ```{r}
 final_fit %>%
@@ -1346,9 +1351,11 @@ final_fit %>%
 
 ---
 
-.center[
+class: center, middle
+
 # Thanks!
-]
+
+##[smltar.com](https://smltar.com/)
 
 .pull-left[
 <img style="border-radius: 50%;" src="https://github.com/EmilHvitfeldt.png" width="150px"/>  
