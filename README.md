@@ -1,6 +1,8 @@
 # Predictive modeling with text using tidy data principles
 
-**Slides for our [useR! 2020](https://user2020.r-project.org/) online tutorial on 24 July 2020**
+**Authors:** [Emil Hvitfeldt](https://www.hvitfeldt.me/), [Julia Silge](https://juliasilge.com/)
+
+**Materials for our [useR! 2020](https://user2020.r-project.org/) online tutorial on 24 July 2020**
 
 This tutorial is hosted by [R-Ladies en Argentina](https://github.com/RLadiesEnArgentina/user2020tutorial).
 
