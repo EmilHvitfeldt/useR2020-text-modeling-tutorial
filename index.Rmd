@@ -70,13 +70,12 @@ knit_hooks$set(output = function(x, options) {
 
 opts_chunk$set(
   echo = TRUE,
+  cache = TRUE,
   fig.width = 7, 
   fig.align = 'center',
   fig.asp = 0.618, # 1 / phi
   out.width = "700px",
   fig.retina = 3)
-
-doParallel::registerDoParallel()
 ```
 
 ```{r, echo = FALSE}
@@ -153,7 +152,7 @@ Let's look at complaints submitted to the [United States Consumer Financial Prot
 ```{r R.options = list(width = 80), message=FALSE}
 library(tidyverse)
 
-complaints <- read_csv("data/complaints.csv.gz") %>% sample_frac(0.005)
+complaints <- read_csv("data/complaints.csv.gz") %>% sample_frac(0.1)
 names(complaints)
 ```
 
@@ -748,7 +747,7 @@ background-size: 60%
 
 ```{r}
 set.seed(123)
-complaints_folds <- vfold_cv(complaints_train, v = 2, strata = product)
+complaints_folds <- vfold_cv(complaints_train, v = 10, strata = product)
 
 complaints_folds
 ```
