@@ -1,0 +1,302 @@
+---
+title: "Predictive modeling with text using tidy data principles"
+author: "Julia Silge & Emil Hvitfeldt"
+date: "2019-7-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For this predictive modeling analysis, you will need to install up-to-date versions of
+
+- tidyverse
+- tidymodels
+- textrecipes
+- vip
+
+## Read in the data
+
+```{r}
+library(tidyverse)
+
+set.seed(123)
+complaints <- read_csv("data/complaints.csv.gz") %>%
+  slice_sample(prop = 0.1)  ## try with more data if you like, but training will take longer
+
+names(complaints)
+```
+
+What do some example complaints look like?
+
+```{r}
+complaints %>%
+  sample_n(10) %>%
+  pull(consumer_complaint_narrative)
+```
+
+How is the `product` variable distributed?
+
+```{r}
+complaints %>%
+  mutate(product = str_wrap(product, 50),
+         product = fct_rev(fct_infreq(factor(product)))) %>%
+  ggplot(aes(y = product)) +
+  geom_bar() +
+  labs(x = NULL, y = NULL)
+```
+
+Try this yourself with some of the other variables like `tag`!
+
+
+## Create a binary classification outcome
+
+```{r}
+credit <- "Credit reporting, credit repair services, or other personal consumer reports"
+
+complaints2class <- complaints %>%
+  mutate(product = factor(if_else(
+    condition = product == credit, 
+    true = "Credit", 
+    false = "Other"))) %>%
+  rename(text = consumer_complaint_narrative)
+```
+
+
+## Data splitting
+
+Let's split our data into **testing** and **training** sets.
+
+```{r}
+library(tidymodels)
+set.seed(1234)
+
+complaints_split <- initial_split(complaints2class, strata = product)
+
+complaints_train <- training(complaints_split)
+complaints_test <- testing(complaints_split)
+```
+
+
+## Data preprocessing
+
+This is the same as feature engineering.
+
+```{r}
+library(textrecipes)
+
+complaints_rec <-
+  recipe(product ~ date_received + tags + text,
+    data = complaints_train
+  ) %>%
+  step_date(date_received, features = c("month", "dow"), role = "dates") %>%
+  step_rm(date_received) %>%
+  step_dummy(has_role("dates")) %>%
+  step_unknown(tags) %>%
+  step_dummy(tags) %>%
+  step_tokenize(text) %>%
+  step_stopwords(text) %>%
+  step_ngram(text, num_tokens = 2, min_num_tokens = 1) %>%
+  step_tokenfilter(text, max_tokens = tune(), min_times = 5) %>%
+  step_tfidf(text)
+
+complaints_rec
+```
+
+Notice `max_tokens = tune()`, i.e. we are tuning the number of tokens being used in the model.
+
+## Model specification
+
+
+```{r}
+lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
+  set_mode("classification") %>%
+  set_engine("glmnet")
+
+lasso_spec
+```
+
+If we had used `mixture = 0`, we would have a ridge model. With `penalty = tune()`, we will tune the regularization parameter.
+
+## Possible hyperparameter to try out
+
+```{r}
+param_grid <- grid_regular(
+  penalty(range = c(-4, 0)),
+  max_tokens(range = c(500, 2000)),
+  levels = 5
+)
+
+param_grid
+```
+
+## Cross-validation folds
+
+We can use resampling to create simulated validation sets, for comparing and evaluating all our possible models.
+
+```{r}
+set.seed(123)
+complaints_folds <- vfold_cv(complaints_train, strata = product)
+
+complaints_folds
+```
+
+## Create a workflow
+
+A workflow combines machine learning components like a data preprocessor and a model specification in an easy-to-handle container object.
+
+```{r}
+complaints_wf <- workflow() %>%
+  add_recipe(complaints_rec) %>%
+  add_model(lasso_spec)
+
+complaints_wf
+```
+
+
+## Time to tune! 
+
+We have everything we need (resamples, model, features) so now we can train all these different possible models and see which ones turn out best. Be patient, as fitting all these models takes a while.
+
+(Optionally, you can uncomment the line to set up parallel processing. Different operating systems may need to use different approaches for parallel processing. If you use parallel processing, `verbose` won't print anything.)
+
+```{r}
+set.seed(42)
+
+##doParallel::registerDoParallel()
+
+lasso_rs <- tune_grid(
+  complaints_wf,
+  resamples = complaints_folds,
+  grid = param_grid, 
+  control = control_grid(save_pred = TRUE, verbose = TRUE)
+) 
+
+lasso_rs
+```
+
+## Evaluate our results
+
+What **metrics** did we get for each of the models we trained?
+
+```{r}
+collect_metrics(lasso_rs)
+```
+
+We can find just the best ones.
+
+```{r}
+lasso_rs %>%
+  show_best("roc_auc")
+```
+
+We can visualize the results as well.
+
+```{r}
+collect_metrics(lasso_rs)
+```
+
+Which one was the **best**?
+
+```{r}
+best_roc_auc <- select_best(lasso_rs, "roc_auc")
+
+best_roc_auc
+```
+
+We can also look at _predictions_ from these models. For example, from the best performing model:
+
+```{r}
+collect_predictions(lasso_rs, parameters = best_roc_auc)
+```
+
+Let's make an ROC plot.
+
+```{r}
+collect_predictions(lasso_rs, parameters = best_roc_auc) %>%
+  group_by(id) %>%
+  roc_curve(truth = product, .pred_Credit) %>%
+  autoplot()
+```
+
+Each resample fold is shown in a different color.
+
+We can update our workflow with the best performing hyperparameters.
+
+```{r}
+wf_spec_final <- finalize_workflow(complaints_wf, best_roc_auc)
+
+wf_spec_final
+```
+
+This workflow is ready to go! It can now be applied to new data.
+
+## Variable importance
+
+Which variables drive our model to predict one way or the other?
+
+```{r}
+library(vip)
+
+vi_data <- wf_spec_final %>%
+  fit(complaints_train) %>%
+  pull_workflow_fit() %>%
+  vi(lambda = best_roc_auc$penalty) %>%
+  mutate(Variable = str_remove_all(Variable, "tfidf_text_")) %>%
+  filter(Importance != 0)
+
+vi_data
+```
+
+```{r}
+vi_data %>%
+  mutate(
+    Importance = abs(Importance)
+    ) %>%
+  filter(Importance != 0) %>%
+  group_by(Sign) %>%
+  top_n(20, Importance) %>%
+  ungroup() %>%
+  mutate(Sign = factor(Sign, c("POS", "NEG"), c("Other", "Credit"))) %>%
+  ggplot(aes(
+    x = Importance,
+    y = fct_reorder(Variable, Importance),
+    fill = Sign
+  )) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(expand = c(0, 0)) +
+  facet_wrap(~Sign, scales = "free") +
+  labs(
+    y = NULL
+  )
+```
+
+## Final fit
+
+We will now use `last_fit()` to **fit** our model one last time on our training data and **evaluate** it on our testing data.
+
+```{r}
+final_fit <- last_fit(
+  wf_spec_final, 
+  complaints_split
+)
+
+final_fit
+```
+
+These are metrics computed on the _testing_ set.
+
+```{r}
+final_fit %>%
+  collect_metrics()
+```
+
+```{r}
+final_fit %>%
+  collect_predictions() %>%
+  roc_curve(truth = product, .pred_Credit) %>%
+  autoplot()
+```
+
+These results indicate that we did not overfit during tuning.
