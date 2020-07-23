@@ -1098,8 +1098,7 @@ best_roc_auc
 # Evaluate the best model `r emo::ji("ruler")`
 
 ```{r}
-collect_predictions(lasso_rs, 
-                    parameters = best_roc_auc)
+collect_predictions(lasso_rs, parameters = best_roc_auc)
 ```
 
 ---
@@ -1107,8 +1106,7 @@ collect_predictions(lasso_rs,
 # Evaluate the best model `r emo::ji("ruler")`
 
 ```{r, eval=FALSE}
-collect_predictions(lasso_rs, 
-                    parameters = select_best(lasso_rs, "roc_auc")) %>%
+collect_predictions(lasso_rs, parameters = best_roc_auc) %>%
   group_by(id) %>%
   roc_curve(truth = product, .pred_Credit) %>%
   autoplot()
@@ -1119,8 +1117,7 @@ collect_predictions(lasso_rs,
 # Evaluate the best model `r emo::ji("ruler")`
 
 ```{r, echo=FALSE}
-collect_predictions(lasso_rs, 
-                    parameters = select_best(lasso_rs, "roc_auc")) %>%
+collect_predictions(lasso_rs, parameters = best_roc_auc) %>%
   group_by(id) %>%
   roc_curve(truth = product, .pred_Credit) %>%
   autoplot() +
@@ -1138,8 +1135,7 @@ collect_predictions(lasso_rs,
 We can update our workflow with the best performing hyperparameters.
 
 ```{r}
-wf_spec_final <- wf_spec %>%
-  finalize_workflow(parameters = best_roc_auc)
+wf_spec_final <- finalize_workflow(complaints_wf, best_roc_auc)
 ```
 
 This workflow is ready to go! It can now be applied to new data.
@@ -1154,11 +1150,13 @@ class: inverse, right, middle
 
 ## Variable importance
 
-```{r}
+```{r message=FALSE}
+library(vip)
+
 wf_spec_final %>%
   fit(complaints_train) %>%
   pull_workflow_fit() %>%
-  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %>%
+  vi(lambda = best_roc_auc$penalty) %>%
   filter(!str_detect(Variable, "tfidf")) %>%
   filter(Importance != 0)
 ```
@@ -1168,10 +1166,10 @@ wf_spec_final %>%
 ## Variable importance
 
 ```{r}
-wi_data <- wf_spec_final %>%
+vi_data <- wf_spec_final %>%
   fit(complaints_train) %>%
   pull_workflow_fit() %>%
-  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %>%
+  vi(lambda = best_roc_auc$penalty) %>%
   mutate(Variable = str_remove_all(Variable, "tfidf_text_")) %>%
   filter(Importance != 0)
 ```
@@ -1181,7 +1179,7 @@ wi_data <- wf_spec_final %>%
 ## Variable importance 
 
 ```{r}
-wi_data
+vi_data
 ```
 
 ---
@@ -1189,7 +1187,7 @@ wi_data
 class: center, middle
 
 ```{r, echo=FALSE}
-max_imp <- log(max(abs(wi_data$Importance)))
+max_imp <- log(max(abs(vi_data$Importance)))
 
 log_neg <- function(x) {
   sign(x) * log(abs(x))
@@ -1211,7 +1209,7 @@ highlighter <- function(x, sign) {
 ```
 
 ```{r, echo=FALSE}
-wi_data %>%
+vi_data %>%
   mutate(
     Importance = abs(Importance)
     ) %>%
@@ -1222,7 +1220,7 @@ wi_data %>%
   mutate(Sign = factor(Sign, c("POS", "NEG"), c("Other", "Credit"))) %>%
   ggplot(aes(
     x = Importance,
-    y = forcats::fct_reorder(Variable, Importance),
+    y = fct_reorder(Variable, Importance),
     fill = Sign
   )) +
   geom_col(show.legend = FALSE) +
@@ -1247,7 +1245,7 @@ complaints_train %>%
   filter(product == "Credit", nchar(text) < 800) %>%
   slice(1) %>%
   tidytext::unnest_tokens(words, text) %>%
-  left_join(wi_data, by = c("words" = "Variable")) %>%
+  left_join(vi_data, by = c("words" = "Variable")) %>%
   mutate(words = map2(words, Importance, highlighter)) %>%
   pull(words) %>%
   htmltools::div()
@@ -1266,7 +1264,7 @@ complaints_train %>%
   filter(product == "Credit", nchar(text) < 800) %>%
   slice(2) %>%
   tidytext::unnest_tokens(words, text) %>%
-  left_join(wi_data, by = c("words" = "Variable")) %>%
+  left_join(vi_data, by = c("words" = "Variable")) %>%
   mutate(words = map2(words, Importance, highlighter)) %>%
   pull(words) %>%
   htmltools::div()
@@ -1285,7 +1283,7 @@ complaints_train %>%
   filter(product == "Other", nchar(text) < 800) %>%
   slice(1) %>%
   tidytext::unnest_tokens(words, text) %>%
-  left_join(wi_data, by = c("words" = "Variable")) %>%
+  left_join(vi_data, by = c("words" = "Variable")) %>%
   mutate(words = map2(words, Importance, highlighter)) %>%
   pull(words) %>%
   htmltools::div()
@@ -1304,7 +1302,7 @@ complaints_train %>%
   filter(product == "Other", nchar(text) < 800) %>%
   slice(2) %>%
   tidytext::unnest_tokens(words, text) %>%
-  left_join(wi_data, by = c("words" = "Variable")) %>%
+  left_join(vi_data, by = c("words" = "Variable")) %>%
   mutate(words = map2(words, Importance, highlighter)) %>%
   pull(words) %>%
   htmltools::div()

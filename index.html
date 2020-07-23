@@ -1312,8 +1312,7 @@ best_roc_auc
 
 
 ```r
-collect_predictions(lasso_rs, 
-                    parameters = best_roc_auc)
+collect_predictions(lasso_rs, parameters = best_roc_auc)
 ```
 
 ```
@@ -1339,8 +1338,7 @@ collect_predictions(lasso_rs,
 
 
 ```r
-collect_predictions(lasso_rs, 
-                    parameters = select_best(lasso_rs, "roc_auc")) %&gt;%
+collect_predictions(lasso_rs, parameters = best_roc_auc) %&gt;%
   group_by(id) %&gt;%
   roc_curve(truth = product, .pred_Credit) %&gt;%
   autoplot()
@@ -1360,8 +1358,7 @@ We can update our workflow with the best performing hyperparameters.
 
 
 ```r
-wf_spec_final &lt;- wf_spec %&gt;%
-  finalize_workflow(parameters = best_roc_auc)
+wf_spec_final &lt;- finalize_workflow(complaints_wf, best_roc_auc)
 ```
 
 This workflow is ready to go! It can now be applied to new data.
@@ -1378,10 +1375,12 @@ class: inverse, right, middle
 
 
 ```r
+library(vip)
+
 wf_spec_final %&gt;%
   fit(complaints_train) %&gt;%
   pull_workflow_fit() %&gt;%
-  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %&gt;%
+  vi(lambda = best_roc_auc$penalty) %&gt;%
   filter(!str_detect(Variable, "tfidf")) %&gt;%
   filter(Importance != 0)
 ```
@@ -1402,10 +1401,10 @@ wf_spec_final %&gt;%
 
 
 ```r
-wi_data &lt;- wf_spec_final %&gt;%
+vi_data &lt;- wf_spec_final %&gt;%
   fit(complaints_train) %&gt;%
   pull_workflow_fit() %&gt;%
-  vip::vi(lambda = select_best(lasso_rs, "roc_auc")$penalty) %&gt;%
+  vi(lambda = best_roc_auc$penalty) %&gt;%
   mutate(Variable = str_remove_all(Variable, "tfidf_text_")) %&gt;%
   filter(Importance != 0)
 ```
@@ -1416,7 +1415,7 @@ wi_data &lt;- wf_spec_final %&gt;%
 
 
 ```r
-wi_data
+vi_data
 ```
 
 ```
