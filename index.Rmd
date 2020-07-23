@@ -205,17 +205,15 @@ complaints %>%
 
 ---
 
-class: inverse
+class: inverse, right, middle
 
-## We will simplify the task by turning it into a binary classification task
+# Let's approach this as a **binary classification task**
 
 ---
 
-# Splitting
+# Credit or not?
 
 ```{r}
-set.seed(1234)
-
 credit <- "Credit reporting, credit repair services, or other personal consumer reports"
 
 complaints2class <- complaints %>%
@@ -224,6 +222,50 @@ complaints2class <- complaints %>%
     true = "Credit", 
     false = "Other"))) %>%
   rename(text = consumer_complaint_narrative)
+```
+
+---
+
+# Data splitting
+
+Split our data into **training** and **testing**
+
+```{r all-split, echo = FALSE, fig.width=10}
+set.seed(16)
+one_split <- slice(complaints2class, 1:30) %>% 
+  initial_split() %>% 
+  tidy() %>% 
+  add_row(Row = 1:30, Data = "Original") %>% 
+  mutate(Data = case_when(
+    Data == "Analysis" ~ "Training",
+    Data == "Assessment" ~ "Testing",
+    TRUE ~ Data
+  )) %>% 
+  mutate(Data = factor(Data, levels = c("Original", "Training", "Testing")))
+
+all_split <-
+  ggplot(one_split, aes(x = Row, y = fct_rev(Data), fill = Data)) + 
+  geom_tile(color = "white",
+            size = 1) + 
+  #scale_fill_manual(values = splits_pal, guide = FALSE) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = rel(2)),
+        axis.text.x = element_blank(),
+        legend.position = "top",
+        panel.grid = element_blank()) +
+  coord_equal(ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+all_split
+```
+
+---
+
+# Data splitting
+
+
+```{r}
+set.seed(1234)
 
 complaints_split <- initial_split(complaints2class, strata = product)
 
@@ -233,7 +275,7 @@ complaints_test <- testing(complaints_split)
 
 ---
 
-# What variables can we use
+# Which of these variables can we use?
 
 ```{r}
 names(complaints_train)
@@ -241,23 +283,40 @@ names(complaints_train)
 
 ---
 
-# Variable selecition checklist:
+# Feature selection checklist
 
-- Are we ethically allowed to use this variable?
-- Are we legally allowed to use this variable?
-- Would this variable be available to us at prediction time?
-- Would this variable add more signal then noise?
-- Would this variable to explainable?
+--
+
+
+- Is it ethical to use this variable? (or even legal?)
+
+
+--
+
+
+- Will this variable be available at prediction time?
+
+
+--
+
+
+- Does this variable contribute to explainability?
 
 ---
 
-TODO: 
+# Which of these variables can we use?
 
-talk about which variables fall into which catagory
+```{r}
+names(complaints_train)
+```
 
-zipcode would be clearly in catagory 1.
+---
 
-We end up using: date_received + tags + consumer_complaint_narrative
+# Which of these variables can we use?
+
+- `date_received`
+- `tags`
+- `consumer_complaint_narrative` == `r emo::ji("page_with_curl")`
 
 ---
 
