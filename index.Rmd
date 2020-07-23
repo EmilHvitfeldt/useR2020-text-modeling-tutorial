@@ -75,6 +75,8 @@ opts_chunk$set(
   fig.asp = 0.618, # 1 / phi
   out.width = "700px",
   fig.retina = 3)
+
+doParallel::registerDoParallel()
 ```
 
 ```{r, echo = FALSE}
@@ -263,6 +265,7 @@ all_split
 
 # Data splitting
 
+The testing set is a precious resource which can be used only once
 
 ```{r}
 set.seed(1234)
@@ -646,7 +649,6 @@ svm_rbf() %>% set_engine("liquidSVM")
 
 ---
 
-
 # What makes a model?
 
 ```{r}
@@ -658,9 +660,20 @@ lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
 lasso_spec
 ```
 
+
+--
+
+What does `tune()` mean?
+
 ---
 
-# Creating a workflow
+class: inverse, right, middle
+
+# Now we have **features** plus a **model**
+
+---
+
+# Create a workflow
 
 ```{r}
 wf_spec <- workflow() %>%
@@ -670,7 +683,13 @@ wf_spec <- workflow() %>%
 
 ---
 
-# Setting up a tuning grid
+class: inverse, right, middle
+
+# What is a `workflow()`?
+
+---
+
+# A grid of possible parameters
 
 ```{r}
 param_grid <- grid_regular(
@@ -678,29 +697,66 @@ param_grid <- grid_regular(
   max_tokens(range = c(500, 2000)),
   levels = 6
 )
+```
 
 
+---
+
+# A grid of possible parameters
+
+```{r echo=FALSE}
 param_grid
 ```
 
 ---
 
+class: inverse, right, middle
+
+# How can we **compare** and **evaluate** these different models?
+
+---
+
+background-image: url(https://www.tidymodels.org/start/resampling/img/resampling.svg)
+background-size: 60%
+
+---
+
+# Spend your data budget
 
 ```{r}
-complaints_folds <- vfold_cv(complaints_train, v = 2)
+set.seed(123)
+complaints_folds <- vfold_cv(complaints_train, v = 2, strata = product)
 
 complaints_folds
 ```
 
 ---
 
+class: inverse, right, middle
+
+# Spend your data wisely to create **simulated** validation sets
+
+---
+
+## Time to tune! `r emo::ji("lightning")`
+
 ```{r}
 set.seed(42)
 lasso_grid <- tune_grid(
   wf_spec,
   resamples = complaints_folds,
-  grid = param_grid, control = control_grid(verbose = TRUE)
+  grid = param_grid
 ) 
+
+lasso_grid
+```
+
+---
+
+## Time to tune! `r emo::ji("lightning")`
+
+```{r echo=FALSE}
+lasso_grid
 ```
 
 ---
