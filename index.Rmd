@@ -705,11 +705,188 @@ lasso_grid <- tune_grid(
 
 ---
 
+class: inverse, center, middle
+
 # lets talk about tokenization
 
-(this feels like an okay segway since using n-grams)
+---
+
+# Tokenization
+
+- Action of turning text in smaller parts of text (tokens)
+
+
+--
+
+
+- Typically words but not exclusively
+
+
+--
+
+
+- Often an essential part of any text preprocessing task
+
+
+--
+
+
+- Many options to to take into consideration 
 
 ---
+
+# Tokenization - Whitespaces
+
+```{r, echo=FALSE}
+token_example <- "I am a long-time victim of identity theft. This debt don't belong to me."
+```
+
+```{r}
+token_example
+```
+
+--
+
+```{r}
+strsplit(token_example, "\\s")
+```
+
+---
+
+# Tokenization - tokenizers package
+
+
+```{r}
+token_example
+```
+
+```{r}
+library(tokenizers)
+
+tokenize_words(token_example)
+```
+
+---
+
+# Tokenization - spacy library
+
+
+```{r}
+token_example
+```
+
+```{r, eval=FALSE}
+library(spacyr)
+
+spacyr::spacy_tokenize(token_example)
+```
+
+```{r echo=FALSE}
+list(c("I", "am", "a", "long", "-", "time", "victim", 
+"of", "identity", "theft", ".", "This", "debt", "do", "n't", 
+"belong", "to", "me", "."))
+```
+
+---
+
+Whitespace
+
+```{r, echo=FALSE}
+strsplit(token_example, "\\s")
+```
+
+tokenizers package
+
+```{r, echo=FALSE}
+tokenize_words(token_example)
+```
+
+spacy library
+
+```{r echo=FALSE}
+list(c("I", "am", "a", "long", "-", "time", "victim", 
+"of", "identity", "theft", ".", "This", "debt", "do", "n't", 
+"belong", "to", "me", "."))
+```
+
+---
+
+# Tokenization considerations
+
+- Do we need to turn UPPERCASE letters to lowercase
+
+
+--
+
+
+- How are we handling punctuation??
+
+
+--
+
+
+- how about non-word characters inside words?
+
+
+--
+
+
+- Multi word expressions
+
+---
+
+class: inverse, center, middle
+
+### tokenization on English text is much easier than on text such as Chience or Japanese where the notion of a "word" isn't neatly seperated by spaces
+
+---
+
+# N-grams
+
+## A sequence of n sequential tokens
+
+--
+
+
+- Captures words that appear together often
+
+
+--
+
+
+- Can detect negations ("not happy")
+
+
+--
+
+
+- Larger cardinality
+
+
+---
+
+```{r}
+tokenize_ngrams(token_example, n = 1)
+```
+
+
+```{r}
+tokenize_ngrams(token_example, n = 2)
+```
+
+
+```{r}
+tokenize_ngrams(token_example, n = 3)
+```
+
+---
+
+# Tokenization
+
+See [Chapter 2](https://smltar.com/tokenization.html) for more!
+
+---
+
 
 # Looking at the hyperparameters
 
