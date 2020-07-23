@@ -509,7 +509,145 @@ fromList(list(smart = stopwords(source = "smart"),
 
 ---
 
-# Model specification
+class: inverse, right, middle
+
+## What kind of **models** work well for text?
+
+---
+
+# Text models
+
+Remember that text data is sparse! `r emo::ji("open_mouth")`
+
+--
+
+
+- Regularized linear models (glmnet)
+- Support vector machines
+- naive Bayes
+- Tree-based models like random forest? 
+
+---
+
+# Text models
+
+Remember that text data is sparse! `r emo::ji("open_mouth")`
+
+- Regularized linear models (glmnet)
+- Support vector machines
+- naive Bayes
+- Tree-based models like random forest?  `r emo::ji("no_good")`
+
+---
+
+class: inverse, right, middle
+
+# Does text data have to be **sparse**?
+
+---
+
+
+## You shall know a word by the company it keeps.
+### [`r emo::ji("speech_balloon")` John Rupert Firth](https://en.wikiquote.org/wiki/John_Rupert_Firth)
+
+
+
+--
+
+Learn more about word embeddings:
+
+- in [Chapter 5](https://smltar.com/embeddings.html)
+- at [juliasilge.github.io/why-r-webinar/](https://juliasilge.github.io/why-r-webinar/)
+
+
+---
+
+# To specify a model in tidymodels
+
+1\. Pick a **model**
+
+2\. Set the **mode** (if needed)
+
+3\. Set the **engine**
+
+---
+
+![](https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/parsnip.png)
+
+.footnote[
+Art by [Allison Horst](https://github.com/allisonhorst/stats-illustrations)
+]
+
+---
+
+# To specify a model in tidymodels
+
+All available models are listed at <https://tidymodels.org/find/parsnip>
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_url("https://tidymodels.org/find/parsnip")
+```
+
+---
+
+class: middle
+
+
+# `set_mode()`
+
+Some models can solve multiple types of problems
+
+
+```{r}
+svm_rbf() %>% set_mode(mode = "regression")
+```
+
+---
+
+class: middle
+
+
+# `set_mode()`
+
+Some models can solve multiple types of problems
+
+
+```{r}
+svm_rbf() %>% set_mode(mode = "classification")
+```
+
+---
+
+class: middle
+
+
+# `set_engine()`
+
+The same model can be implemented by multiple computational engines
+
+
+```{r eval}
+svm_rbf() %>% set_engine("kernlab")
+```
+
+---
+
+class: middle
+
+
+# `set_engine()`
+
+The same model can be implemented by multiple computational engines
+
+
+```{r}
+svm_rbf() %>% set_engine("liquidSVM")
+```
+
+---
+
+
+# What makes a model?
 
 ```{r}
 lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
