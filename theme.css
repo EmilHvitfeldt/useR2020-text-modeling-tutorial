@@ -90,7 +90,7 @@ li::before {
   background-color: #FFFFFF;
 }
 
-.title-slide .remark-slide-number {
+.remark-slide-number {
   display: none;
 }
 
