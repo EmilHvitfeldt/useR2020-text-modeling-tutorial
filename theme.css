@@ -82,6 +82,8 @@ img, video, iframe {
 li {
   padding: 10px;
   display: block;
+  list-style-position: inside;
+  text-indent: -0.7em;
 }
 
 li::before {
