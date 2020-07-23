@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Montserrat);
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,700");
 /* General */
 body {
   font-family: Montserrat;
@@ -10,7 +10,8 @@ a, a > code {
 }
 
 strong {
-  color: #000000;
+  color: #0fa923;
+  font-weight: 700;
 }
 
 em {
