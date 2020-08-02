@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-For this predictive modeling analysis, you will need to install up-to-date versions of
+For [this predictive modeling analysis](https://youtu.be/Sz8RB_fPYOk), you will need to install up-to-date versions of
 
 - tidyverse
 - tidymodels
